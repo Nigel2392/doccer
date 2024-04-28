@@ -172,26 +172,24 @@ func (d *TemplateDirectory) Traverse(fn func(*TemplateDirectory) (o Object, next
 
 // Walk walks the directory tree
 func (d *TemplateDirectory) Walk(parts []string) (Object, bool) {
-	return d.Traverse(func(dir *TemplateDirectory) (Object, bool, bool) {
-		if len(parts) == 0 {
-			return dir, false, true
-		}
+	if len(parts) == 0 {
+		return d, true
+	}
 
-		var (
-			part     = parts[dir.Depth]
-			next, ok = dir.Subdirectories.GetOK(part)
-		)
-		if ok {
-			return next, true, false
-		}
+	var (
+		part     = parts[0]
+		next, ok = d.Subdirectories.GetOK(part)
+	)
+	if ok {
+		return next.Walk(parts[1:])
+	}
 
-		n, ok := dir.Templates.GetOK(part)
-		if ok {
-			return n, true, true
-		}
+	n, ok := d.Templates.GetOK(part)
+	if ok {
+		return n, true
+	}
 
-		return nil, false, false
-	})
+	return nil, false
 }
 
 func (d *TemplateDirectory) URL() string {

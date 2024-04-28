@@ -72,10 +72,16 @@ func ObjectURL(baseURL string, obj Object, isServing bool) string {
 		return baseURL
 	}
 
+	var url string
 	if isServing {
-		return path.Join(baseURL, obj.ServeURL())
+		url = obj.ServeURL()
+	} else {
+		url = obj.URL()
 	}
-	return path.Join(baseURL, obj.URL())
+
+	url = strings.Replace(url, "\\", "/", -1)
+
+	return path.Join(baseURL, url)
 }
 
 func buildMapFunc[T *TemplateDirectory | *Template](context *Context, tree map[string]interface{}) func(string, T) bool {

@@ -30,7 +30,6 @@ func matchCommand(d *doccer.Doccer, command string) (err error) {
 }
 
 //go:embed assets/*
-//go:embed assets/static/*
 //go:embed assets/templates/*
 var embedFS embed.FS
 

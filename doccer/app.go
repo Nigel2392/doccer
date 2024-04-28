@@ -300,42 +300,51 @@ func (d *Doccer) Init() error {
 		return err
 	}
 
-	dirs, err := fs.ReadDir(d.embedFS, "assets/templates")
+	var CopyDirectory = func(fileSys fs.FS, scrDir, dest string) error {
+		dirs, err := fs.ReadDir(fileSys, scrDir)
+		if err != nil {
+			return err
+		}
+
+		for _, dir := range dirs {
+			var (
+				fSrcPath = path.Join(scrDir, dir.Name())
+				fDstPath = filepath.Join(dest, dir.Name())
+			)
+
+			if dir.IsDir() {
+				continue
+			}
+
+			fSrc, err := d.embedFS.Open(fSrcPath)
+			if err != nil {
+				return err
+			}
+
+			fDst, err := os.Create(fDstPath)
+			if err != nil {
+				return err
+			}
+
+			_, err = io.Copy(fDst, fSrc)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	err = CopyDirectory(d.embedFS, "assets/static", filepath.Join(DOCCER_DIR, "static"))
 	if err != nil {
 		return err
 	}
 
-	if len(dirs) == 0 {
-		return nil
-	}
-
-	for _, dir := range dirs {
-		var (
-			fSrcPath = path.Join("assets/templates", dir.Name())
-			fDstPath = filepath.Join(DOCCER_DIR, "templates", dir.Name())
-		)
-
-		if dir.IsDir() {
-			continue
-		}
-
-		fSrc, err := d.embedFS.Open(fSrcPath)
-		if err != nil {
-			return err
-		}
-
-		fDst, err := os.Create(fDstPath)
-		if err != nil {
-			return err
-		}
-
-		_, err = io.Copy(fDst, fSrc)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	// Copy the templates
+	return CopyDirectory(
+		d.embedFS,
+		"assets/templates",
+		filepath.Join(DOCCER_DIR, "templates"),
+	)
 }
 
 // Serve serves the documentation
@@ -434,14 +443,22 @@ func (d *Doccer) renderObject(w io.Writer, obj Object) error {
 			}
 			var b bytes.Buffer
 			dir.Subdirectories.ForEach(func(key string, v *TemplateDirectory) bool {
-				fmt.Fprintf(&b, "<p><a href=\"/%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
+				//var o = &contextObject{
+				//	Object:  v,
+				//	context: context,
+				//}
+				fmt.Fprintf(&b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
 				fmt.Fprintf(&b, ".%s%s", string(filepath.Separator), v.GetName())
 				fmt.Fprintf(&b, "</a></p>\n")
 				return true
 			})
 
 			dir.Templates.ForEach(func(key string, v *Template) bool {
-				fmt.Fprintf(&b, "<p><a href=\"/%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
+				//var o = &contextObject{
+				//	Object:  v,
+				//	context: context,
+				//}
+				fmt.Fprintf(&b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
 				fmt.Fprintf(&b, ".%s%s", string(filepath.Separator), v.GetName())
 				fmt.Fprintf(&b, "</a></p>\n")
 				return true
