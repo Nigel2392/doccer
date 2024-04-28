@@ -1,13 +1,13 @@
 project:
-  name: "Project Name"
+  name: "Getting Started"
   version: "1.0.0"
-  repository: "https://github.com/username/repository"
+  repository: "https://github.com/Nigel2392/doccer"
   input: "./docs_src"
   output: "./docs"
 
 server:
-  base_url: "/docs/"
-  static_url: "https://example.com/static/"
+  base_url: "/doccer/"
+  static_url: "https://github.com/Nigel2392/doccer/blob/main/assets"
   hostname: "localhost"
   port: 8080
   # private_key: "path/to/private_key"
@@ -16,11 +16,8 @@ server:
 menu:
   logo: "static/logo.svg"
   items:
-    - name: "Home"
-      path: ""
-    # - name: "Installation Instructions"
-    #   path: "installation_instructions.md"
 
-# context:
-#   Title: "Project Name"
-#   description: "This is a project that does things."
+context:
+  # Add custom context variables here
+  # These can be accessed in the markdown files using {{ index .Ctx.key }}
+  # key: value

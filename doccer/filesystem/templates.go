@@ -1,34 +1,29 @@
 package filesystem
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path"
 	"strings"
 )
 
+type Config struct {
+	Title string   // Title of the object
+	Next  []string // Path to the next object
+	Prev  []string // Path to the previous object
+}
+
 // Template represents a documentation template
 type Template struct {
-	// Template name
-	Name string
+	// Base filesystem object
+	FSBase
 
-	// Absolute template path
-	Path string
-
-	// Documentation root directory
-	Root string
-
-	// Output directory
-	Output string
-
-	// Relative output directory path
-	Relative string
+	// Template configuration
+	Config
 
 	// Template content
 	Content []byte
-
-	// Depth in the directory tree
-	Depth int
 }
 
 func (d *Template) depthString() string {
@@ -68,12 +63,14 @@ func NewTemplate(name, root, filepath, output, relative string, depth int) (*Tem
 	}
 
 	var template = &Template{
-		Name:     name,
-		Path:     filepath,
-		Root:     root,
-		Output:   output,
-		Relative: relative,
-		Depth:    depth,
+		FSBase: FSBase{
+			Name:     name,
+			Path:     filepath,
+			Root:     root,
+			Output:   output,
+			Relative: relative,
+			Depth:    depth,
+		},
 	}
 
 	var err = template.loadContent()
@@ -107,6 +104,53 @@ func (t *Template) loadContent() error {
 		return err
 	}
 
-	t.Content = content
+	content = bytes.TrimSpace(content)
+
+	var (
+		lines = bytes.Split(
+			bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n")),
+			[]byte("\n"),
+		)
+		contentIndex = 0
+	)
+
+loop:
+	for i, line := range lines {
+		line = bytes.TrimSpace(line)
+		if !bytes.HasPrefix(line, []byte("//")) {
+			contentIndex = i
+			break loop
+		}
+
+		var (
+			trimmed = bytes.TrimPrefix(line, []byte("//"))
+			parts   = bytes.SplitN(trimmed, []byte(":"), 2)
+		)
+
+		if len(parts) != 2 {
+			contentIndex = i
+			break loop
+		}
+
+		var (
+			key   = strings.TrimSpace(string(parts[0]))
+			value = strings.TrimSpace(string(parts[1]))
+		)
+
+		switch strings.ToLower(key) {
+		case "title":
+			t.Title = value
+		case "next":
+			t.Next = strings.Split(value, ".")
+		case "prev":
+			t.Prev = strings.Split(value, ".")
+		default:
+			contentIndex = i
+			break loop
+		}
+	}
+
+	t.Content = bytes.Join(lines[contentIndex:], []byte("\n"))
+
 	return nil
 }

@@ -14,20 +14,8 @@ import (
 // TemplateDirectory represents a directory of documentation templates
 // This is used to generate a tree- like structure for documentation templates.
 type TemplateDirectory struct {
-	// Absolute directory path
-	Path string
-
-	// Documentation root directory
-	Root string
-
-	// Output directory
-	Output string
-
-	// Relative output directory path
-	Relative string
-
-	// Directory name
-	Name string
+	FSBase
+	Config
 
 	// Index template
 	Index *Template
@@ -37,9 +25,6 @@ type TemplateDirectory struct {
 
 	// Templates in the directory
 	Templates *orderedmap.Map[string, *Template]
-
-	// Depth in the directory tree
-	Depth int
 }
 
 // NewTemplateDirectory creates a new template directory
@@ -50,14 +35,16 @@ func NewTemplateDirectory(name, root, path, output, relative string, depth int) 
 	}
 
 	var dir = &TemplateDirectory{
-		Name:           name,
-		Root:           root,
-		Path:           path,
-		Output:         output,
-		Relative:       relative,
+		FSBase: FSBase{
+			Name:     name,
+			Root:     root,
+			Path:     path,
+			Output:   output,
+			Relative: relative,
+			Depth:    depth,
+		},
 		Subdirectories: orderedmap.New[string, *TemplateDirectory](),
 		Templates:      orderedmap.New[string, *Template](),
-		Depth:          depth,
 	}
 
 	var dirs, err = os.ReadDir(path)
@@ -104,6 +91,9 @@ func NewTemplateDirectory(name, root, path, output, relative string, depth int) 
 
 			if IsIndexFile(template.Name) {
 				dir.Index = template
+				dir.Title = template.Title
+				dir.Next = template.Next
+				dir.Prev = template.Prev
 			} else {
 				dir.Templates.Set(template.Name, template)
 			}

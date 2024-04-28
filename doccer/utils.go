@@ -39,31 +39,24 @@ func IsLocal(filepath string) bool {
 	return err != nil || u.Scheme == ""
 }
 
-func assetFile(relative string) string {
-	if relative == "" {
-		panic("asset file path is required")
-	}
+type DoccerFS struct {
+	fs.FS
+}
 
-	if !IsLocal(relative) {
-		return relative
-	}
-
-	if filepath.IsAbs(relative) {
-		return relative
-	}
-
-	workingDir, err := os.Getwd()
+func (d *DoccerFS) Open(name string) (f fs.File, err error) {
+	cwd, err := os.Getwd()
 	if err != nil {
-		return relative
+		return nil, err
 	}
 
-	var assetPath = filepath.Join(workingDir, DOCCER_DIR, relative)
-	if _, err := os.Stat(assetPath); err == nil {
-		return assetPath
+	var doccerPath = filepath.Join(cwd, DOCCER_DIR, name)
+	if _, err = os.Stat(doccerPath); err == nil {
+		f, err = os.Open(doccerPath)
+	} else {
+		f, err = d.FS.Open(path.Join("assets", name))
 	}
 
-	var executable = os.Args[0]
-	return filepath.Join(filepath.Dir(executable), "assets", relative)
+	return f, err
 }
 
 func ObjectURL(baseURL string, obj filesystem.Object, isServing bool) string {
@@ -199,4 +192,13 @@ func addTemplateContext(context *Context, t *filesystem.Template) {
 
 	context.Content = template.HTML(b2.String())
 
+	if t.Config.Title != "" {
+		context.Title = t.Config.Title
+	}
+
+	//if len(t.Config.Next) > 0 {
+	//}
+	//
+	//if len(t.Config.Prev) > 0 {
+	//}
 }

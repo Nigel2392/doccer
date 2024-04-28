@@ -25,3 +25,23 @@ type Object interface {
 	ServeURL() string
 	URL() string
 }
+
+type FSBase struct {
+	// Absolute directory path
+	Path string
+
+	// Documentation root directory
+	Root string
+
+	// Output directory
+	Output string
+
+	// Relative output directory path
+	Relative string
+
+	// Directory name
+	Name string
+
+	// Depth in the directory tree
+	Depth int
+}

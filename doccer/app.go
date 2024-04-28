@@ -57,7 +57,7 @@ type Doccer struct {
 func NewDoccer(embedFS fs.FS, configPath string) (*Doccer, error) {
 	var doccer = &Doccer{
 		configPath: configPath,
-		embedFS:    embedFS,
+		embedFS:    &DoccerFS{embedFS},
 	}
 	doccer.config = NewConfig(doccer)
 
@@ -195,11 +195,9 @@ func (d *Doccer) TemplateFuncs() template.FuncMap {
 		"GetCurrentDate": func() string {
 			return time.Now().Format("2006-01-02")
 		},
-
 		"GetTime": func() time.Time {
 			return time.Now()
 		},
-
 		"Asset": func(name string) template.HTML {
 
 			if IsLocal(d.config.Server.StaticUrl) {
@@ -219,7 +217,6 @@ func (d *Doccer) TemplateFuncs() template.FuncMap {
 			}
 
 			return template.HTML(d.config.Server.StaticUrl + name + "?raw=true")
-
 		},
 	}
 }
@@ -356,14 +353,7 @@ func (d *Doccer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if IsLocal(d.config.Server.StaticUrl) && strings.HasPrefix(path, d.config.Server.StaticUrl) {
 		path = filepath.Clean(strings.TrimPrefix(path, d.config.Server.StaticUrl))
-		path = assetFile(path)
 		http.ServeFile(w, r, path)
-		return
-	}
-
-	if strings.HasSuffix(path, "favicon.ico") {
-		var icon = assetFile("favicon.ico")
-		http.ServeFile(w, r, icon)
 		return
 	}
 
@@ -423,12 +413,14 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 			)
 		} else {
 			var tpl = &filesystem.Template{
-				Name:     "index.html",
-				Path:     "index.html",
-				Root:     dir.Root,
-				Output:   "index.html",
-				Relative: "index.html",
-				Depth:    dir.Depth,
+				FSBase: filesystem.FSBase{
+					Name:     "index.html",
+					Path:     "index.html",
+					Root:     dir.Root,
+					Output:   "index.html",
+					Relative: "index.html",
+					Depth:    dir.Depth,
+				},
 			}
 			var b bytes.Buffer
 			dir.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {

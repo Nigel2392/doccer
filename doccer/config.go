@@ -1,8 +1,8 @@
 package doccer
 
 import (
+	"html/template"
 	"os"
-	"text/template"
 
 	"github.com/Nigel2392/doccer/doccer/filesystem"
 )
@@ -92,11 +92,11 @@ func (c *Config) Init() error {
 	}
 
 	var files = []string{
-		assetFile("templates/footer.tmpl"),
-		assetFile("templates/navbar.tmpl"),
-		assetFile("templates/main.tmpl"),
-		assetFile("templates/head.tmpl"),
-		assetFile("templates/base.tmpl"),
+		"templates/footer.tmpl",
+		"templates/navbar.tmpl",
+		"templates/main.tmpl",
+		"templates/head.tmpl",
+		"templates/base.tmpl",
 		// assetFile(c.Template),
 	}
 
@@ -105,7 +105,7 @@ func (c *Config) Init() error {
 
 	tpl.Funcs(c.Instance.TemplateFuncs())
 
-	tpl, err = tpl.ParseFiles(files...)
+	tpl, err = tpl.ParseFS(c.Instance.embedFS, files...)
 	if err != nil {
 		return err
 	}
