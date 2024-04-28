@@ -53,11 +53,11 @@ menu:
 
 The `context` section contains custom context variables that can be accessed in the markdown files.
 
-These can be accessed using `{{ index .Ctx.your_custom_key }}`.
+These can be accessed using `{{ "{{ index .Ctx.your_custom_key }}" }}`.
 
 ```yaml
 context:
   # Add custom context variables here
-  # These can be accessed in the markdown files using {{ index .Ctx.key }}
+  # These can be accessed in the markdown files using {{ "{{ index .Ctx.key }}" }}
   # key: value
 ```
