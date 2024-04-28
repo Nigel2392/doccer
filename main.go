@@ -11,6 +11,7 @@ import (
 )
 
 func matchCommand(d *doccer.Doccer, command string) (err error) {
+	// Execute the command
 	switch strings.ToLower(command) {
 	case "build":
 		if err = d.Load(); err != nil {
