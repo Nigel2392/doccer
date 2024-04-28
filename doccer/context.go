@@ -4,6 +4,8 @@ import (
 	"html/template"
 	"maps"
 	"reflect"
+
+	"github.com/Nigel2392/doccer/doccer/filesystem"
 )
 
 // MenuItem represents a menu item
@@ -20,7 +22,7 @@ type Menu struct {
 
 type contextObject struct {
 	// The current object
-	Object Object
+	Object filesystem.Object
 
 	// The current context
 	context *Context
@@ -56,7 +58,7 @@ type Context struct {
 	Title string
 
 	// Current object being rendered
-	object Object
+	object filesystem.Object
 
 	// The current configuration
 	Config *Config
@@ -77,12 +79,12 @@ type Context struct {
 	Tree map[string]interface{}
 
 	// Pagination
-	Previous Object
-	Next     Object
+	Previous filesystem.Object
+	Next     filesystem.Object
 }
 
 // Object represents the documentation object
-func (c *Context) Object() Object {
+func (c *Context) Object() filesystem.Object {
 	if _, ok := c.object.(*contextObject); ok {
 		return c.object
 	}

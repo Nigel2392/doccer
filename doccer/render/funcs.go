@@ -1,8 +1,7 @@
-package doccer
+package render
 
 import (
 	"io"
-	"path"
 
 	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
@@ -12,36 +11,14 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 )
 
-var renderMap = make(map[string]func(io.Writer, []byte, *Doccer) error)
-
-func init() {
-	renderMap["html"] = renderRaw
-	renderMap["md"] = renderMarkdown
-	renderMap["markdown"] = renderMarkdown
-}
-
-func GetFileRenderer(filename string) func(io.Writer, []byte, *Doccer) error {
-	var ext = path.Ext(filename)
-	if ext == "" {
-		return renderRaw
-	}
-
-	ext = ext[1:]
-	if render, ok := renderMap[ext]; ok {
-		return render
-	}
-
-	return renderRaw
-}
-
-func renderRaw(w io.Writer, content []byte, d *Doccer) error {
+func renderRaw(w io.Writer, content []byte) error {
 	content = append([]byte("<pre>"), content...)
 	content = append(content, []byte("</pre>")...)
 	_, err := w.Write(content)
 	return err
 }
 
-func renderMarkdown(w io.Writer, content []byte, d *Doccer) error {
+func renderMarkdown(w io.Writer, content []byte) error {
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,

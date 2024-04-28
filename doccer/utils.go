@@ -4,12 +4,17 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io"
+	"io/fs"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	text_template "text/template"
+
+	"github.com/Nigel2392/doccer/doccer/filesystem"
+	"github.com/Nigel2392/doccer/doccer/render"
 )
 
 var replacer = strings.NewReplacer(
@@ -32,12 +37,6 @@ func IsLocal(filepath string) bool {
 
 	var u, err = url.Parse(filepath)
 	return err != nil || u.Scheme == ""
-}
-
-// isIndexFile returns true if the file is an index file
-func isIndexFile(name string) bool {
-	return strings.HasPrefix(name, "index.") ||
-		strings.HasPrefix(strings.ToLower(name), "readme.")
 }
 
 func assetFile(relative string) string {
@@ -67,7 +66,7 @@ func assetFile(relative string) string {
 	return filepath.Join(filepath.Dir(executable), "assets", relative)
 }
 
-func ObjectURL(baseURL string, obj Object, isServing bool) string {
+func ObjectURL(baseURL string, obj filesystem.Object, isServing bool) string {
 	if obj == nil {
 		return baseURL
 	}
@@ -87,13 +86,51 @@ func ObjectURL(baseURL string, obj Object, isServing bool) string {
 	}
 
 	return url
-
 }
 
-func buildMapFunc[T *TemplateDirectory | *Template](context *Context, tree map[string]interface{}) func(string, T) bool {
+func CopyDirectory(fileSys fs.FS, scrDir, dest string) error {
+	dirs, err := fs.ReadDir(fileSys, scrDir)
+	if err != nil {
+		return err
+	}
+
+	for _, dir := range dirs {
+		var (
+			fSrcPath = path.Join(scrDir, dir.Name())
+			fDstPath = filepath.Join(dest, dir.Name())
+		)
+
+		if dir.IsDir() {
+			continue
+		}
+
+		fSrc, err := fileSys.Open(fSrcPath)
+		if err != nil {
+			return err
+		}
+
+		if _, err := os.Stat(fDstPath); err == nil {
+			fmt.Printf("File %s already exists, skipping\n", fDstPath)
+			continue
+		}
+
+		fDst, err := os.Create(fDstPath)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(fDst, fSrc)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func buildMapFunc[T *filesystem.TemplateDirectory | *filesystem.Template](context *Context, tree map[string]interface{}) func(string, T) bool {
 	return func(key string, v T) bool {
 		var value = any(v)
-		if template, ok := value.(*Template); ok {
+		if template, ok := value.(*filesystem.Template); ok {
 			var (
 				extension = path.Ext(template.Name)
 				basename  = template.Name[0 : len(template.Name)-len(extension)]
@@ -106,11 +143,11 @@ func buildMapFunc[T *TemplateDirectory | *Template](context *Context, tree map[s
 				context: context,
 			}
 
-		} else if directory, ok := value.(*TemplateDirectory); ok {
+		} else if directory, ok := value.(*filesystem.TemplateDirectory); ok {
 			var (
 				newTree  = make(map[string]interface{})
-				fnDirs   = buildMapFunc[*TemplateDirectory](context, newTree)
-				fnTpls   = buildMapFunc[*Template](context, newTree)
+				fnDirs   = buildMapFunc[*filesystem.TemplateDirectory](context, newTree)
+				fnTpls   = buildMapFunc[*filesystem.Template](context, newTree)
 				basename = directory.Name
 			)
 
@@ -129,13 +166,13 @@ func buildMapFunc[T *TemplateDirectory | *Template](context *Context, tree map[s
 	}
 }
 
-func addTemplateContext(context *Context, t *Template) {
+func addTemplateContext(context *Context, t *filesystem.Template) {
 	if context.Title == "" {
 		context.Title = t.GetName()
 	}
 	context.object = t
 	var (
-		renderfn = GetFileRenderer(t.GetName())
+		renderfn = render.Get(t.GetName())
 		tpl      = text_template.New("content")
 	)
 
@@ -154,7 +191,7 @@ func addTemplateContext(context *Context, t *Template) {
 	}
 
 	var b2 bytes.Buffer
-	err = renderfn(&b2, b.Bytes(), context.Config.Instance)
+	err = renderfn(&b2, b.Bytes())
 	if err != nil {
 		context.Content = template.HTML(fmt.Sprintf("Error: %s", err))
 		return

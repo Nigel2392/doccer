@@ -10,11 +10,16 @@
                         <a href="{{ .Previous.URL }}" class="pagination__link pagination__link--previous">
                             {{ .Previous.GetName }}
                         </a>
+                    {{ else }}
+                        <span class="pagination__placeholder"></span>
+
                     {{ end }}
                     {{ if .Next }}
                         <a href="{{ .Next.URL }}" class="pagination__link pagination__link--next">
                             {{ .Next.GetName }} 
                         </a>
+                    {{ else }}
+                        <span class="pagination__placeholder"></span>
                     {{ end }}
                 </div>
             {{ end }}

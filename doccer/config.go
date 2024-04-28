@@ -3,38 +3,40 @@ package doccer
 import (
 	"os"
 	"text/template"
+
+	"github.com/Nigel2392/doccer/doccer/filesystem"
 )
 
-type ServerConfig struct {
-	Hostname    string `yaml:"hostname"`    // Hostname to use for the server
-	Port        int    `yaml:"port"`        // Port to use for the server
-	BaseURL     string `yaml:"base_url"`    // Base URL for the server
-	StaticUrl   string `yaml:"static_url"`  // Static URL for assets
-	StaticRoot  string `yaml:"static_root"` // Static root directory for assets
-	PrivateKey  string `yaml:"private_key"` // Private key for the server
-	Certificate string `yaml:"certificate"` // Certificate for the server
-}
+type (
+	ServerConfig struct {
+		Hostname    string `yaml:"hostname"`    // Hostname to use for the server
+		Port        int    `yaml:"port"`        // Port to use for the server
+		BaseURL     string `yaml:"base_url"`    // Base URL for the server
+		StaticUrl   string `yaml:"static_url"`  // Static URL for assets
+		StaticRoot  string `yaml:"static_root"` // Static root directory for assets
+		PrivateKey  string `yaml:"private_key"` // Private key for the server
+		Certificate string `yaml:"certificate"` // Certificate for the server
+	}
 
-type ProjectConfig struct {
-	Name            string `yaml:"name"`       // Project name
-	Version         string `yaml:"version"`    // Project version
-	Repository      string `yaml:"repository"` // Repository URL
-	InputDirectory  string `yaml:"input"`      // Documentation root directory
-	OutputDirectory string `yaml:"output"`     // Output directory
-}
+	ProjectConfig struct {
+		Name            string `yaml:"name"`       // Project name
+		Version         string `yaml:"version"`    // Project version
+		Repository      string `yaml:"repository"` // Repository URL
+		InputDirectory  string `yaml:"input"`      // Documentation root directory
+		OutputDirectory string `yaml:"output"`     // Output directory
+	}
 
-type Config struct {
-	Server  ServerConfig           `yaml:"server"`  // Server configuration
-	Project ProjectConfig          `yaml:"project"` // Project configuration
-	Context map[string]interface{} `yaml:"context"` // Extra context for generating documentation
-	Menu    *Menu                  `yaml:"menu"`    // Menu items
+	Config struct {
+		Server  ServerConfig           `yaml:"server"`  // Server configuration
+		Project ProjectConfig          `yaml:"project"` // Project configuration
+		Context map[string]interface{} `yaml:"context"` // Extra context for generating documentation
+		Menu    *Menu                  `yaml:"menu"`    // Menu items
 
-	Instance      *Doccer            `yaml:"-"` // Doccer instance
-	RootDirectory *TemplateDirectory `yaml:"-"` // Root directory
-	Tpl           *template.Template `yaml:"-"` // HTML Template
-
-	// yaml.Unmarshaler
-}
+		Instance      *Doccer                       `yaml:"-"` // Doccer instance
+		Tpl           *template.Template            `yaml:"-"` // HTML Template
+		RootDirectory *filesystem.TemplateDirectory `yaml:"-"` // Root directory
+	}
+)
 
 func NewConfig(instance *Doccer) *Config {
 	return &Config{
@@ -43,16 +45,6 @@ func NewConfig(instance *Doccer) *Config {
 		Instance: instance,
 	}
 }
-
-//	func panicIfNotFound[T1 map[T3]any, T2 any, T3 comparable](m T1, key T3, value T2) T2 {
-//		if v, ok := m[key]; ok {
-//			return v.(T2)
-//		}
-//		if reflect.ValueOf(value).IsZero() {
-//			panic(fmt.Sprintf("%v is required", key))
-//		}
-//		return value
-//	}
 
 // UnmarshalYAML unmarshals the config from YAML
 func (c *Config) Init() error {
@@ -123,7 +115,7 @@ func (c *Config) Init() error {
 		inp = c.Project.InputDirectory
 		out = c.Project.OutputDirectory
 	)
-	rootDirectory, err := NewTemplateDirectory("", inp, inp, out, "", 0)
+	rootDirectory, err := filesystem.NewTemplateDirectory("", inp, inp, out, "", 0)
 	if err != nil {
 		return err
 	}

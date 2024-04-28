@@ -15,6 +15,8 @@ import (
 
 	_ "embed"
 
+	"github.com/Nigel2392/doccer/doccer/filesystem"
+	"github.com/Nigel2392/typeutils/terminal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -35,20 +37,10 @@ func raise(message string) {
 	)
 }
 
-// Object represents a documentation object
-// It might be a directory or file.
-type Object interface {
-	String() string
-	GetName() string
-	IsDirectory() bool
-	ServeURL() string
-	URL() string
-}
-
 // Walker represents an object which can traverse through a path.
 // It is used to find a specific object in the documentation tree.
 type Walker interface {
-	Walk(parts []string) (object Object, ok bool)
+	Walk(parts []string) (object filesystem.Object, ok bool)
 }
 
 type Doccer struct {
@@ -104,7 +96,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 	}
 
 	if len(d.config.Menu.Items) == 0 {
-		d.config.RootDirectory.Subdirectories.ForEach(func(key string, v *TemplateDirectory) bool {
+		d.config.RootDirectory.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {
 			menu.Items = append(menu.Items, &MenuItem{
 				Name: v.Name,
 				URL:  ObjectURL(d.config.Server.BaseURL, v, isServing),
@@ -112,7 +104,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 			return true
 		})
 
-		d.config.RootDirectory.Templates.ForEach(func(key string, v *Template) bool {
+		d.config.RootDirectory.Templates.ForEach(func(key string, v *filesystem.Template) bool {
 			menu.Items = append(menu.Items, &MenuItem{
 				Name: v.Name,
 				URL:  ObjectURL(d.config.Server.BaseURL, v, isServing),
@@ -124,7 +116,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 	return menu
 }
 
-func (d *Doccer) buildMenu(m *Menu, dir *TemplateDirectory, isServing bool) *Menu {
+func (d *Doccer) buildMenu(m *Menu, dir *filesystem.TemplateDirectory, isServing bool) *Menu {
 	var menu = &Menu{
 		Items: make([]*MenuItem, 0),
 	}
@@ -186,8 +178,8 @@ func (d *Doccer) GetContext(isServing bool) *Context {
 		context: context,
 	}
 
-	var fnDirs = buildMapFunc[*TemplateDirectory](context, context.Tree)
-	var fnTpls = buildMapFunc[*Template](context, context.Tree)
+	var fnDirs = buildMapFunc[*filesystem.TemplateDirectory](context, context.Tree)
+	var fnTpls = buildMapFunc[*filesystem.Template](context, context.Tree)
 
 	d.config.RootDirectory.Subdirectories.ForEach(fnDirs)
 	d.config.RootDirectory.Templates.ForEach(fnTpls)
@@ -197,6 +189,9 @@ func (d *Doccer) GetContext(isServing bool) *Context {
 
 func (d *Doccer) TemplateFuncs() template.FuncMap {
 	return template.FuncMap{
+		"Env": func(key string) string {
+			return os.Getenv(key)
+		},
 		"GetCurrentDate": func() string {
 			return time.Now().Format("2006-01-02")
 		},
@@ -233,16 +228,16 @@ func (d *Doccer) Build() error {
 	// Build the templates
 	var (
 		err  error
-		last Object
+		last filesystem.Object
 	)
-	d.config.RootDirectory.ForEach(func(obj Object) bool {
+	d.config.RootDirectory.ForEach(func(obj filesystem.Object) bool {
 		last = obj
 
 		var outputDir string
 
 		// Skip directories
 		if obj.IsDirectory() {
-			var dir = obj.(*TemplateDirectory)
+			var dir = obj.(*filesystem.TemplateDirectory)
 			err = os.MkdirAll(dir.Output, 0755)
 			if err != nil {
 				err = fmt.Errorf("error creating directory %s: %s", dir.Output, err)
@@ -251,7 +246,7 @@ func (d *Doccer) Build() error {
 
 			outputDir = filepath.Join(dir.Output, "index.html")
 		} else {
-			var t = obj.(*Template)
+			var t = obj.(*filesystem.Template)
 			outputDir = t.Output
 		}
 
@@ -277,20 +272,40 @@ func (d *Doccer) Build() error {
 }
 
 func (d *Doccer) Init() error {
-	var c = NewConfig(d)
-	var b, err = yaml.Marshal(c)
+	var err = os.MkdirAll(DOCCER_DIR, 0755)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(d.configPath, b, 0644)
-	if err != nil {
-		return err
+	var createConfig = true
+	if _, err := os.Stat(d.configPath); err == nil {
+		createConfig = false
+
+		ans, _ := terminal.RepeatAsk(
+			"Config file already exists. Do you want to overwrite it? (y/n)",
+			[]string{
+				"y", "yes",
+				"n", "no",
+			},
+			false,
+		)
+
+		if ans == "y" || ans == "yes" {
+			createConfig = true
+		}
 	}
 
-	err = os.MkdirAll(DOCCER_DIR, 0755)
-	if err != nil {
-		return err
+	if createConfig {
+		var c = NewConfig(d)
+		var b, err = yaml.Marshal(c)
+		if err != nil {
+			return err
+		}
+
+		err = os.WriteFile(d.configPath, b, 0644)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Create the templates directory
@@ -303,40 +318,6 @@ func (d *Doccer) Init() error {
 	err = os.MkdirAll(filepath.Join(DOCCER_DIR, "static"), 0755)
 	if err != nil {
 		return err
-	}
-
-	var CopyDirectory = func(fileSys fs.FS, scrDir, dest string) error {
-		dirs, err := fs.ReadDir(fileSys, scrDir)
-		if err != nil {
-			return err
-		}
-
-		for _, dir := range dirs {
-			var (
-				fSrcPath = path.Join(scrDir, dir.Name())
-				fDstPath = filepath.Join(dest, dir.Name())
-			)
-
-			if dir.IsDir() {
-				continue
-			}
-
-			fSrc, err := d.embedFS.Open(fSrcPath)
-			if err != nil {
-				return err
-			}
-
-			fDst, err := os.Create(fDstPath)
-			if err != nil {
-				return err
-			}
-
-			_, err = io.Copy(fDst, fSrc)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
 	}
 
 	err = CopyDirectory(d.embedFS, "assets/static", filepath.Join(DOCCER_DIR, "static"))
@@ -421,13 +402,13 @@ func (d *Doccer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (d *Doccer) renderObject(w io.Writer, obj Object) error {
+func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 	var _, isServing = w.(http.ResponseWriter)
 	var context = d.GetContext(isServing)
 
 	// Serve the object
 	if obj.IsDirectory() {
-		var dir = obj.(*TemplateDirectory)
+		var dir = obj.(*filesystem.TemplateDirectory)
 
 		// dir.Subdirectories.ForEach(func(key string, v *TemplateDirectory) bool {
 		// 	fmt.Fprintf(w, "<p><a href=\"/%s\">", v.Relative)
@@ -441,7 +422,7 @@ func (d *Doccer) renderObject(w io.Writer, obj Object) error {
 				context, dir.Index,
 			)
 		} else {
-			var tpl = &Template{
+			var tpl = &filesystem.Template{
 				Name:     "index.html",
 				Path:     "index.html",
 				Root:     dir.Root,
@@ -450,7 +431,7 @@ func (d *Doccer) renderObject(w io.Writer, obj Object) error {
 				Depth:    dir.Depth,
 			}
 			var b bytes.Buffer
-			dir.Subdirectories.ForEach(func(key string, v *TemplateDirectory) bool {
+			dir.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {
 				//var o = &contextObject{
 				//	Object:  v,
 				//	context: context,
@@ -461,7 +442,7 @@ func (d *Doccer) renderObject(w io.Writer, obj Object) error {
 				return true
 			})
 
-			dir.Templates.ForEach(func(key string, v *Template) bool {
+			dir.Templates.ForEach(func(key string, v *filesystem.Template) bool {
 				//var o = &contextObject{
 				//	Object:  v,
 				//	context: context,
@@ -484,7 +465,7 @@ func (d *Doccer) renderObject(w io.Writer, obj Object) error {
 		}
 
 	} else {
-		var t = obj.(*Template)
+		var t = obj.(*filesystem.Template)
 
 		addTemplateContext(
 			context, t,

@@ -1,4 +1,4 @@
-package doccer
+package filesystem
 
 import (
 	"fmt"
@@ -102,7 +102,7 @@ func NewTemplateDirectory(name, root, path, output, relative string, depth int) 
 				return nil, err
 			}
 
-			if isIndexFile(template.Name) {
+			if IsIndexFile(template.Name) {
 				dir.Index = template
 			} else {
 				dir.Templates.Set(template.Name, template)
@@ -120,7 +120,7 @@ func (d *TemplateDirectory) depthString() string {
 
 // Format the directory as a string
 func (d *TemplateDirectory) String() string {
-	return fmt.Sprintf("Directory: %s", d.Relative)
+	return d.Relative
 }
 
 // Format the directory for %v

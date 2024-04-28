@@ -1,4 +1,4 @@
-package doccer
+package filesystem
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func (d *Template) depthString() string {
 
 // Format the template as a string
 func (t *Template) String() string {
-	return fmt.Sprintf("Template: %s", t.Relative)
+	return t.Relative
 }
 
 // Format the template for %v
