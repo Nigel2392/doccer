@@ -4,7 +4,9 @@ import (
 	"io"
 	"path"
 
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
@@ -41,7 +43,15 @@ func renderRaw(w io.Writer, content []byte, d *Doccer) error {
 
 func renderMarkdown(w io.Writer, content []byte, d *Doccer) error {
 	md := goldmark.New(
-		goldmark.WithExtensions(extension.GFM),
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("monokai"),
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+				),
+			),
+		),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
 		),
