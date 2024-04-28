@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        
+    <title>README.md (v1.0.0) </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+                html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            scrollbar-gutter: stable;
+        }
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        nav {
+            width: 250px;
+            position: fixed;
+            height: 100%;
+            overflow: auto;
+            padding: 0;
+            margin: 0;
+        }
+        main {
+            margin: 0;
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+        main h1, main h2, main h3, main h4, main h5, main h6, main ol, main ul {
+            margin: 0;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        h2 {
+            font-size: 2em;
+        }
+        h3 {
+            font-size: 1.5em;
+        }
+        h4 {
+            font-size: 1.2em;
+        }
+        h5 {
+            font-size: 1em;
+        }
+        h6 {
+            font-size: 0.8em;
+        }
+        main > * {
+            width: 100%;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 8px;
+            border-left: 3px solid #ccc;
+            margin: 10px 0;
+            font-size: 14px;
+            overflow: auto;
+        }
+        *:not(pre, h1, h2, h3, h4, h5, h6) > code {
+            font-size: 14px;
+            color: #c7254e;
+            background-color: #f9f2f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        *:is(h1, h2, h3, h4, h5, h6):has(> code) {
+            color: #a10c31;
+            background-color: #f9f2f4;
+            padding: 0 8px;
+        }
+        .navbar {
+            display: flex;
+            flex-direction: column;
+            background-color: #333;
+            color: #fff;
+        }
+        .navbar-logo {
+            padding: 10px 20px;
+        }
+        .navbar-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .navbar-menu {
+            display: flex;
+            flex-direction: column;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .navbar-menu li {
+            list-style-type: none;
+        }
+        .navbar-menu li .navbar-item {
+            display: block;
+            padding: 10px 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .navbar-menu li a.navbar-item:hover {
+            background-color: #555;
+        }
+        .navbar-menu li .navbar-item-small {
+            padding: 5px 20px;
+        }
+        .navbar-footer {
+            margin-top: auto;
+            margin-bottom: 10px;
+        }
+        .main-content-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            position: relative;
+        }
+        .main-content-lint {
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            justify-content: space-between;
+            background-color: #f4f4f4;
+            position: sticky;
+            width: 100%;
+            z-index: 1000;
+            top: 0;
+        }
+        .main-content-lint > * {
+            width: 30%;
+            flex: 1;
+        }
+        .main-content-lint > *:last-child {
+            justify-content: flex-end;
+            text-align: right;
+        }
+        .object-information {
+            text-wrap: nowrap;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .pagination {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-evenly;
+            align-items: center;
+            width: 40%;
+            flex: 1;
+            gap: 10px;
+        }
+        .pagination__link:first-child {
+            text-align: left;
+        }
+        .pagination__link:last-child {
+            text-align: right;
+        }
+        .pagination__link {
+            text-decoration: none;
+            color: #333;
+            border-radius: 5px;
+            text-wrap: nowrap;
+        }
+        .pagination__link,
+        .pagination__placeholder {
+            flex: 1;
+            text-align: center;
+        }
+        @media screen and (max-width: 768px) {
+            .pagination {
+                order: 3;
+            }
+        }
+        .main-content {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            padding-left: 20px;
+            width: 90%;
+        }
+        .documentation-links {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        .documentation-link {
+            text-decoration: none;
+        }
+
+    </style>
+    <link rel="icon" type="image/png" href="https://github.com/Nigel2392/doccer/blob/main/assets/static/favicon.png?raw=true">
+
+    </head>
+    <body>
+        
+    <nav class="navbar">
+        <div class="navbar-logo">
+            <a href="/doccer/">
+                
+                    <img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/logo.svg?raw=true">
+                
+            </a>
+        </div>
+        <ul class="navbar-menu">
+            <li>
+                <a href="/doccer/" class="navbar-item navbar-title">
+                    Getting Started
+                </a>
+            </li>
+            
+        </ul>
+        <ul class="navbar-menu navbar-footer">
+            <li>
+                <span class="navbar-item navbar-item-small">
+                    v1.0.0
+                </span>
+            </li>
+            
+                <li>
+                    <a href="https://github.com/Nigel2392/doccer" class="navbar-item" target="_blank">
+                        View Doccer on GitHub
+                    </a>
+                </li>
+            
+        </ul>
+    </nav>
+
+        
+    <main class="main-content-wrapper">
+        <div class="main-content-lint">
+            <div class="object-information">
+                <span class="object-information__title">README.md</span>
+            </div>
+            
+            <div class="documentation-links">
+                
+                    <a href="https://github.com/Nigel2392/doccer" class="documentation-link" target="_blank">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                
+            </div>
+        </div>
+        <div class="main-content">
+            <p><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/logo.svg?raw=true" alt="Doccer" /></p>
+<h1 id="getting-started">Getting Started</h1>
+<p>A simple documentation generator for your project.</p>
+<p>Easily build static HTML pages from your markdown files.</p>
+<h2 id="installation">Installation</h2>
+<pre style="color:#f8f8f2;background-color:#272822;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>go install github.com/Nigel2392/doccer@latest
+</span></span></code></pre><h2 id="usage">Usage</h2>
+<pre style="color:#f8f8f2;background-color:#272822;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>doccer init  <span style="color:#75715e"># Initialize a new skeleton for the documentation.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>doccer serve <span style="color:#75715e"># Serve the documentation with a local server.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>doccer build <span style="color:#75715e"># Build the documentation.</span>
+</span></span></code></pre>
+        </div>
+    </main>
+
+        
+    <footer>
+
+    </footer>
+
+    </body>
+</html>
