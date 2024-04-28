@@ -14,8 +14,11 @@ server:
   # certificate: "path/to/public_key"
 
 menu:
-  logo: "static/logo.svg"
   items:
+    - name: "Configuration"
+      path: "configuration.md"
+    - name: "Templates"
+      path: "templates.md"
 
 context:
   # Add custom context variables here

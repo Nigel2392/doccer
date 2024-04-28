@@ -1,3 +1,6 @@
+// Title: Doccer DocGen
+// Next: configuration
+
 ![Doccer]({{ Asset "static/logo.svg" }})
 
 {{ .Config.Project.Name }}
