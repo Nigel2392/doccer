@@ -26,7 +26,6 @@ The `server` section contains the configuration for the local server.
 It also handles the base URL for the documentation and the static URL for the assets (even when externally hosted).
 
 ```yaml
-
 server:
   base_url: "/doccer/"
   static_url: "https://github.com/Nigel2392/doccer/blob/main/assets"
