@@ -181,6 +181,11 @@ func (d *Doccer) GetContext(isServing bool) *Context {
 		Config:    d.config,
 	}
 
+	context.Tree["root"] = &contextObject{
+		Object:  d.config.RootDirectory,
+		context: context,
+	}
+
 	var fnDirs = buildMapFunc[*TemplateDirectory](context, context.Tree)
 	var fnTpls = buildMapFunc[*Template](context, context.Tree)
 
@@ -381,7 +386,10 @@ func (d *Doccer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var hasBasePrefix = strings.HasPrefix(path, d.config.Server.BaseURL)
+	var (
+		baseUrl       = strings.TrimSuffix(d.config.Server.BaseURL, "/")
+		hasBasePrefix = strings.HasPrefix(path, baseUrl)
+	)
 	if !hasBasePrefix && path != "/" {
 		http.NotFound(w, r)
 		return

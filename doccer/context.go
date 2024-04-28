@@ -75,6 +75,10 @@ type Context struct {
 
 	// The directory tree
 	Tree map[string]interface{}
+
+	// Pagination
+	Previous Object
+	Next     Object
 }
 
 // Object represents the documentation object

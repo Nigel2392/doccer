@@ -111,6 +111,10 @@ func buildMapFunc[T *TemplateDirectory | *Template](context *Context, tree map[s
 			basename = clean_filename(basename)
 
 			tree[basename] = newTree
+			newTree["root"] = &contextObject{
+				Object:  directory,
+				context: context,
+			}
 			directory.Subdirectories.ForEach(fnDirs)
 			directory.Templates.ForEach(fnTpls)
 		}
