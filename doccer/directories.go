@@ -193,11 +193,16 @@ func (d *TemplateDirectory) Walk(parts []string) (Object, bool) {
 }
 
 func (d *TemplateDirectory) URL() string {
+	var url string
 	if strings.HasPrefix(d.Relative, "/") {
-		return d.Relative
+		url = d.Relative
+	} else {
+		url = fmt.Sprintf("/%s", d.Relative)
 	}
-
-	return fmt.Sprintf("/%s", d.Relative)
+	if !strings.HasSuffix(url, "/") {
+		url += "/"
+	}
+	return url
 }
 
 func (d *TemplateDirectory) ServeURL() string {

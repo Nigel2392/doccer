@@ -80,8 +80,14 @@ func ObjectURL(baseURL string, obj Object, isServing bool) string {
 	}
 
 	url = strings.Replace(url, "\\", "/", -1)
+	url = path.Join(baseURL, url)
 
-	return path.Join(baseURL, url)
+	if !strings.HasSuffix(url, "/") && obj.IsDirectory() {
+		url += "/"
+	}
+
+	return url
+
 }
 
 func buildMapFunc[T *TemplateDirectory | *Template](context *Context, tree map[string]interface{}) func(string, T) bool {

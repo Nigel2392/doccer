@@ -129,6 +129,9 @@ func (c *Config) Init() error {
 	}
 
 	c.Tpl = tpl
+	rootDirectory.Name = c.Project.Name
+	rootDirectory.Root = inp
+	rootDirectory.Output = out
 	c.RootDirectory = rootDirectory
 
 	return nil
