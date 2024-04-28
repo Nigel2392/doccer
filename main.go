@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"os"
@@ -28,9 +29,14 @@ func matchCommand(d *doccer.Doccer, command string) (err error) {
 	}
 }
 
+//go:embed assets/*
+//go:embed assets/static/*
+//go:embed assets/templates/*
+var embedFS embed.FS
+
 func main() {
 
-	var d, err = doccer.NewDoccer("doccer.yaml")
+	var d, err = doccer.NewDoccer(embedFS, "doccer.yaml")
 	if err != nil && !errors.Is(err, doccer.ErrNoConfig) {
 		fmt.Println(err)
 		os.Exit(1)

@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+
+	_ "embed"
 
 	"gopkg.in/yaml.v3"
 )
@@ -54,12 +57,15 @@ type Doccer struct {
 
 	// Config
 	config *Config
+
+	embedFS fs.FS
 }
 
 // NewDoccer creates a new doccer instance
-func NewDoccer(configPath string) (*Doccer, error) {
+func NewDoccer(embedFS fs.FS, configPath string) (*Doccer, error) {
 	var doccer = &Doccer{
 		configPath: configPath,
+		embedFS:    embedFS,
 	}
 	doccer.config = NewConfig(doccer)
 
@@ -294,9 +300,8 @@ func (d *Doccer) Init() error {
 		return err
 	}
 
-	var executableDir = filepath.Dir(os.Args[0])
-	dirs, err := os.ReadDir(filepath.Join(executableDir, "templates"))
-	if err != nil && !os.IsNotExist(err) {
+	dirs, err := fs.ReadDir(d.embedFS, "assets/templates")
+	if err != nil {
 		return err
 	}
 
@@ -304,17 +309,17 @@ func (d *Doccer) Init() error {
 		return nil
 	}
 
-	for _, d := range dirs {
+	for _, dir := range dirs {
 		var (
-			fSrcPath = filepath.Join(executableDir, "templates", d.Name())
-			fDstPath = filepath.Join(DOCCER_DIR, "templates", d.Name())
+			fSrcPath = path.Join("assets/templates", dir.Name())
+			fDstPath = filepath.Join(DOCCER_DIR, "templates", dir.Name())
 		)
 
-		if d.IsDir() {
+		if dir.IsDir() {
 			continue
 		}
 
-		fSrc, err := os.Open(fSrcPath)
+		fSrc, err := d.embedFS.Open(fSrcPath)
 		if err != nil {
 			return err
 		}
