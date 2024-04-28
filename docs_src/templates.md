@@ -8,21 +8,6 @@ The templates are stored in the `templates` directory, typically found in `./.do
 
 Each markdown file will be embedded into the `base.tmpl` template.
 
-Your markdown files can individually configure themselves. Think of changing titles, setting up related pages etc.
-
-These configurations are made at the top of the markdown file.
-
-An example:
-    
-```markdown
-// Title: This is my README.md
-// Next: my_folder/next_page.md
-
-# This is my README.md
-...
-
-```
-
 Markdown files will have access to the following variables by default:
 
 - `.Config` - The configuration object.
@@ -45,6 +30,8 @@ Markdown files will have access to the following variables by default:
     - `.PrivateKey`      - Private key for the server
     - `.Certificate`     - Certificate for the server
     
+- `.Object`           - The current object being worked on.
+
 - `.Menu`   - The menu items defined in the configuration file.
   (Otherwise automatically generated).
 
@@ -52,3 +39,18 @@ Markdown files will have access to the following variables by default:
   This is a map of string to interface.
 
 - `Asset`   - A function to prefix your staticfiles correctly.
+
+Your markdown files can individually configure themselves. Think of changing titles, setting up related pages etc.
+
+These configurations are made at the top of the markdown file.
+
+An example:
+    
+```markdown
+// Title: This is my README.md
+// Next: my_folder/next_page.md
+
+# This is my README.md
+...
+
+```

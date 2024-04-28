@@ -277,16 +277,7 @@
 <p>Doccer uses Go's <code>html/template</code> package to render the HTML pages.</p>
 <p>The templates are stored in the <code>templates</code> directory, typically found in <code>./.doccer/templates</code>.</p>
 <p>Each markdown file will be embedded into the <code>base.tmpl</code> template.</p>
-<p>Your markdown files can individually configure themselves. Think of changing titles, setting up related pages etc.</p>
-<p>These configurations are made at the top of the markdown file.</p>
-<p>An example:</p>
-<pre style="color:#f8f8f2;background-color:#272822;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>// Title: This is my README.md
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>// Next: my_folder/next_page.md
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span># This is my README.md
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>...
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>
-</span></span></code></pre><p>Markdown files will have access to the following variables by default:</p>
+<p>Markdown files will have access to the following variables by default:</p>
 <ul>
 <li>
 <p><code>.Config</code> - The configuration object.</p>
@@ -316,6 +307,9 @@
 </ul>
 </li>
 <li>
+<p><code>.Object</code>           - The current object being worked on.</p>
+</li>
+<li>
 <p><code>.Menu</code>   - The menu items defined in the configuration file.<br />
 (Otherwise automatically generated).</p>
 </li>
@@ -327,7 +321,16 @@ This is a map of string to interface.</p>
 <p><code>Asset</code>   - A function to prefix your staticfiles correctly.</p>
 </li>
 </ul>
-
+<p>Your markdown files can individually configure themselves. Think of changing titles, setting up related pages etc.</p>
+<p>These configurations are made at the top of the markdown file.</p>
+<p>An example:</p>
+<pre style="color:#f8f8f2;background-color:#272822;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>// Title: This is my README.md
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>// Next: my_folder/next_page.md
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span># This is my README.md
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span>...
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>
+</span></span></code></pre>
         </div>
     </main>
 
