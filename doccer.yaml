@@ -10,8 +10,6 @@ server:
   static_url: "https://github.com/Nigel2392/doccer/blob/main/assets"
   hostname: "localhost"
   port: 8080
-  # private_key: "path/to/private_key"
-  # certificate: "path/to/public_key"
 
 menu:
   items:
@@ -19,8 +17,3 @@ menu:
       path: "configuration.md"
     - name: "Templates"
       path: "templates.md"
-
-context:
-  # Add custom context variables here
-  # These can be accessed in the markdown files using {{ index .Ctx.key }}
-  # key: value
