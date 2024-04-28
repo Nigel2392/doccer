@@ -15,6 +15,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const DOCCER_DIR = ".doccer"
+
 // FooterMenu represents the footer menu
 var FooterMenu = &Menu{
 	Items: []*MenuItem{
@@ -59,27 +61,26 @@ func NewDoccer(configPath string) (*Doccer, error) {
 	var doccer = &Doccer{
 		configPath: configPath,
 	}
+	doccer.config = NewConfig(doccer)
 
+	return doccer, nil
+}
+
+// Load the configuration
+func (d *Doccer) Load() error {
 	// Load the config
-	yamlConfig, err := os.ReadFile(configPath)
+	yamlConfig, err := os.ReadFile(d.configPath)
 	if err != nil {
-		return nil, err
+		return ErrNoConfig
 	}
 
 	// Unmarshal the config
-	var config = NewConfig(doccer)
-	err = yaml.Unmarshal(yamlConfig, config)
+	err = yaml.Unmarshal(yamlConfig, d.config)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	doccer.config = config
-	err = doccer.config.Init()
-	if err != nil {
-		return nil, err
-	}
-
-	return doccer, nil
+	return d.config.Init()
 }
 
 // GetMenu returns the menu for the documentation
@@ -261,6 +262,74 @@ func (d *Doccer) Build() error {
 	if err != nil {
 		return fmt.Errorf("error building %s: %s", last.GetName(), err)
 	}
+	return nil
+}
+
+func (d *Doccer) Init() error {
+	var c = NewConfig(d)
+	var b, err = yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(d.configPath, b, 0644)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(DOCCER_DIR, 0755)
+	if err != nil {
+		return err
+	}
+
+	// Create the templates directory
+	err = os.MkdirAll(filepath.Join(DOCCER_DIR, "templates"), 0755)
+	if err != nil {
+		return err
+	}
+
+	// Create the static directory
+	err = os.MkdirAll(filepath.Join(DOCCER_DIR, "static"), 0755)
+	if err != nil {
+		return err
+	}
+
+	var executableDir = filepath.Dir(os.Args[0])
+	dirs, err := os.ReadDir(filepath.Join(executableDir, "templates"))
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	if len(dirs) == 0 {
+		return nil
+	}
+
+	for _, d := range dirs {
+		var (
+			fSrcPath = filepath.Join(executableDir, "templates", d.Name())
+			fDstPath = filepath.Join(DOCCER_DIR, "templates", d.Name())
+		)
+
+		if d.IsDir() {
+			continue
+		}
+
+		fSrc, err := os.Open(fSrcPath)
+		if err != nil {
+			return err
+		}
+
+		fDst, err := os.Create(fDstPath)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(fDst, fSrc)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

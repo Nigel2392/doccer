@@ -2,18 +2,27 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
 	"github.com/Nigel2392/doccer/doccer"
 )
 
-func matchCommand(d *doccer.Doccer, command string) error {
+func matchCommand(d *doccer.Doccer, command string) (err error) {
 	switch strings.ToLower(command) {
 	case "build":
+		if err = d.Load(); err != nil {
+			return err
+		}
 		return d.Build()
 	case "serve":
+		if err = d.Load(); err != nil {
+			return err
+		}
 		return d.Serve()
+	case "init":
+		return d.Init()
 	default:
 		return errors.New("command not found")
 	}
@@ -22,18 +31,21 @@ func matchCommand(d *doccer.Doccer, command string) error {
 func main() {
 
 	var d, err = doccer.NewDoccer("doccer.yaml")
-	if err != nil {
-		panic(err)
+	if err != nil && !errors.Is(err, doccer.ErrNoConfig) {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	if len(os.Args) < 2 {
-		panic("command is required")
+		fmt.Println("command required")
+		os.Exit(1)
 	}
 
 	var command = os.Args[1]
 	err = matchCommand(d, command)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 }

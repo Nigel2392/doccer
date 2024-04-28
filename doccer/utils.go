@@ -58,7 +58,7 @@ func assetFile(relative string) string {
 		return relative
 	}
 
-	var assetPath = filepath.Join(workingDir, "doccer", relative)
+	var assetPath = filepath.Join(workingDir, DOCCER_DIR, relative)
 	if _, err := os.Stat(assetPath); err == nil {
 		return assetPath
 	}
