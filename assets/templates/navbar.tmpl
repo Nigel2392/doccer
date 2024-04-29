@@ -18,14 +18,9 @@
             </a>
         </div>
         <ul class="navbar-menu">
-            <li>
-                <a href="{{ .Config.Server.BaseURL }}" class="navbar-item navbar-title">
-                    {{ .Config.Project.Name }}
-                </a>
-            </li>
             {{ range $menuItem := .Menu.Items }}
                 <li>
-                    <a href="{{ $menuItem.URL }}" class="navbar-item">
+                    <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}">
                         {{ $menuItem.Name }}
                     </a>
                 </li>
@@ -39,7 +34,7 @@
             </li>
             {{ range $menuItem := .Footer.Items }}
                 <li>
-                    <a href="{{ $menuItem.URL }}" class="navbar-item" target="_blank">
+                    <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" target="_blank">
                         {{ $menuItem.Name }}
                     </a>
                 </li>

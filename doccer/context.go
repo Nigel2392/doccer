@@ -8,8 +8,9 @@ import (
 
 // MenuItem represents a menu item
 type MenuItem struct {
-	Name string `yaml:"name"`
-	URL  string `yaml:"path"`
+	Name      string `yaml:"name"`
+	URL       string `yaml:"path"`
+	Classname string `yaml:"classname"`
 }
 
 // Menu represents a menu
@@ -105,6 +106,11 @@ type Context struct {
 
 	// The directory tree
 	Tree map[string]interface{}
+}
+
+// IsServing returns true if the server is serving over HTTP
+func (c *Context) IsServing() bool {
+	return c.isServing
 }
 
 // Object represents the documentation object

@@ -16,6 +16,7 @@ import (
 	_ "embed"
 
 	"github.com/Nigel2392/doccer/doccer/filesystem"
+	"github.com/Nigel2392/doccer/doccer/hooks"
 	"github.com/Nigel2392/typeutils/terminal"
 	"gopkg.in/yaml.v3"
 )
@@ -113,6 +114,11 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 		})
 	}
 
+	var h = hooks.Get[ConstructMenuHook]("construct_menu")
+	for _, hook := range h {
+		hook(d, menu)
+	}
+
 	return menu
 }
 
@@ -157,6 +163,11 @@ func (d *Doccer) buildMenu(m *Menu, dir *filesystem.TemplateDirectory, isServing
 			Name: item.Name,
 			URL:  url,
 		})
+	}
+
+	var h = hooks.Get[ConstructMenuHook]("construct_menu")
+	for _, hook := range h {
+		hook(d, menu)
 	}
 
 	return menu
@@ -227,6 +238,16 @@ func (d *Doccer) Build() error {
 		err  error
 		last filesystem.Object
 	)
+
+	// Run all build hooks
+	var h = hooks.Get[DoccerHook]("before_build")
+	for _, hook := range h {
+		err = hook(d)
+		if err != nil {
+			return err
+		}
+	}
+
 	d.config.RootDirectory.ForEach(func(obj filesystem.Object) bool {
 		last = obj
 
@@ -265,6 +286,16 @@ func (d *Doccer) Build() error {
 	if err != nil {
 		return fmt.Errorf("error building %s: %s", last.GetName(), err)
 	}
+
+	// Run all build hooks
+	h = hooks.Get[DoccerHook]("after_build")
+	for _, hook := range h {
+		err = hook(d)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -317,6 +348,16 @@ func (d *Doccer) Init() error {
 		return err
 	}
 
+	// Run all init hooks
+	var h = hooks.Get[DoccerHook]("init_new_project")
+	for _, hook := range h {
+		err = hook(d)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Copy the static files
 	err = CopyDirectory(d.embedFS, "assets/static", filepath.Join(DOCCER_DIR, "static"))
 	if err != nil {
 		return err
@@ -336,6 +377,14 @@ func (d *Doccer) Serve() error {
 		serverConfig = d.config.Server
 		addr         = fmt.Sprintf("%s:%d", serverConfig.Hostname, serverConfig.Port)
 	)
+
+	var h = hooks.Get[DoccerHook]("before_serve")
+	for _, hook := range h {
+		if err := hook(d); err != nil {
+			return err
+		}
+	}
+
 	if serverConfig.PrivateKey != "" && serverConfig.Certificate != "" {
 		fmt.Printf("Serving documentation on https://%s\n", addr)
 		return http.ListenAndServeTLS(addr, serverConfig.Certificate, serverConfig.PrivateKey, d)
@@ -456,22 +505,24 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 			)
 		}
 
-		err := d.config.Tpl.ExecuteTemplate(w, "base", context)
-		if err != nil {
-			return err
-		}
-
 	} else {
 		var t = obj.(*filesystem.Template)
 
 		addTemplateContext(
 			context, t,
 		)
+	}
 
-		err := d.config.Tpl.ExecuteTemplate(w, "base", context)
+	var h = hooks.Get[func(*Doccer, *Context, filesystem.Object) error]("pre_render_object")
+	for _, hook := range h {
+		var err = hook(d, context, obj)
 		if err != nil {
 			return err
 		}
+	}
+	var err = d.config.Tpl.ExecuteTemplate(w, "base", context)
+	if err != nil {
+		return err
 	}
 
 	return nil
