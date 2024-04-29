@@ -3,20 +3,20 @@
 
 ![Doccer]({{ Asset "static/logo.svg" }})
 
-{{ .Config.Project.Name }}
+{{ MarkdownIcon "terminal" "" }} {{ .Config.Project.Name }}
 =======================
 
 A simple documentation generator for your project.
 
 Easily build static HTML pages from your markdown files.
 
-## Installation
+## {{ MarkdownIcon "download" "" }} Installation
 
 ```bash
 go install {{ index .Ctx.InstallURL }}@latest
 ```
 
-## Usage
+## {{ MarkdownIcon "question-lg" "" }} Usage
 
 ```bash
 doccer init  # Initialize a new skeleton for the documentation.

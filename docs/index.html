@@ -38,24 +38,28 @@
         }
         main h1, main h2, main h3, main h4, main h5, main h6, main ol, main ul {
             margin: 0;
+            font-size: var(--font-size, 1em);
         }
         h1 {
-            font-size: 2.5em;
+            --font-size: 2.5rem;
+        }
+        h1 img, h2 img, h3 img, h4 img, h5 img, h6 img {
+            min-height: calc(var(--font-size) * 0.8);
         }
         h2 {
-            font-size: 2em;
+            --font-size: 2rem;
         }
         h3 {
-            font-size: 1.5em;
+            --font-size: 1.5rem;
         }
         h4 {
-            font-size: 1.2em;
+            --font-size: 1.2rem;
         }
         h5 {
-            font-size: 1em;
+            --font-size: 1rem;
         }
         h6 {
-            font-size: 0.8em;
+            --font-size: 0.8rem;
         }
         main > * {
             width: 100%;
@@ -214,6 +218,10 @@
             padding-left: 20px;
             width: 90%;
         }
+        .main-content svg {
+            vertical-align: middle;
+            display: inline-block;
+        }
         .documentation-links {
             display: flex;
             flex-direction: row;
@@ -299,7 +307,7 @@
             <input class="navbar-search-input" type="text" placeholder="Search..." />
         </li>
     </ul>
-    <script id="root_data" type="application/base64">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</script>
+    <script id="root_data" type="application/base64">H4sIAAAAAAAA/7RY628buRH/V6brD80B9iq9frkKOLROHOSC5gXbKVCcDia1O9Ky5pJbclayavh/L4bkvqT1JX2cvlgi58cZzus39M+PWWENoaFsma3M736+skWB7pcXFVHjl4vFVlHVrvPC1ouPaov6+z/+6ftFGYQWa23Xi1oqs5DeI/mFJ0mqWGi7tbnfbf/s5P5Hci1+tzJ89v926tpa8uRkc6EKa/yC0NXKSD3VBG+RSJkt3JB0hOXK/Dj/YZMuwau60QilLdoaDSuyBrZo0EmyDjbWwcG2Dhpn/4EF5Yx6I73SB1i3SpcQjYOfbj+8h0Zu0cPG2TqCaunuS7s3sFEafcCencH/2w+sQVtZHvnhnfEktQ43Ys1CiLX01cpsLai4B7+i/i9aEnoKuN/I8H+26Nm6C709sv2Ll1ucGB2PBmUUAZzBO6NISa3+hSDB4B78PWoka0LEqDqKaN4f4NHtEM7gJvw9EYS9ogokaFtIHYXdAI4RP4NX4e+cFiFEdp4pf1cqly35MueZkTVmy+woL7PzjBRp3oklB1e2eIsmO89ap7Nl1nkzezqf1ugZvLZmo7at4+MimH2VjimkgTVCkWSwhNazoOyX4k05J0NK3lY4swXKA1tegoiG5AdZawHSlOAr2+qStTRaFliCMsEbzloCuwnfxwWzMreHRhVS60PYm9G2V1pDJVNMNlZru2era9k0ymz9srNUpIMFeCwCnn0jlfFQI8lSkgS5ti2dWCGE4CusTFpcrgyEKy5hdRydVcabO3ReWcP7f8hf5i/jqsPGekXWHXjjGwoiwpRpWmJEzsv+zrsibtiWJju8moouXDhm4cx9Z1yZkv8ofVfmHYHU3kIlTakxQtfSI3y5fj9fMiHQvJoa3FgwljW8wB0a2FdoAB8InQkBrqwnLL+bujyaEjzOau9ap/nCXY5HR0RN3d5/02niOWxBF9fgCV6IW411tIQfXv7wkn+dQePUThLe3WMIZiOpWpBdjJYj7gwKdKQ2qpCEE8l2rVXRCY7DVqNp/6OgMQAUYR2Z4kP/E+rWUywOCYJvFstQgmAzRF/F/Ivr1iG3fa4lG04WIfcElMphwYk7DQ4rDqEJ2sI3gIu+NF6PrY3u4A8r4+3JZfK67CSGA26xbgKbnIKp20rAsQNDz3uYK/Si9WRrSAKwk07JdUxrSV0DlEWB3g/NaYaMbyv0eCIf26V4fIRV9vgIypT4APlresiZ1O+ico44PD2tMnh6ElN3JrOWMW8uy/J5eyt0GMXmTZk1PRk4Y9/IpnhqSOud1C0eU9NGaj9w03EMR+R0yjUnDDVFV1TrGc66SQ22bWDIh4G1Wo8e3trfexB8wKJLDAGNLO7lNuSyQ1NiLJZh3uqzv88lkI7blnWDB0W/OaqCc6Celja2NUFa5Is83WvApLGvqKahiKy1RsB6jWUZ1HUlx20up7rRojcslvU0lgPvxaB3JTsw4JAt6wOUuJGtpsCGFyDyGB0BF3DK4nbdUx9Xo8g/d8w5fCIuEWJPoAkTUR9Dv5lg0kGhwAfBv0W2FDOCiUgH2eueQ0UnOywx1wyi77h3XXUxE7x4NSGqMHX0QR2AnwKvjpAXEJfGwp1vbhLJnvgmMtfUtRP//JTYRgy4bomD2XrsO3w8a4B+to6OXWsdfQ32Snr8cv1+7OhXx1x+jLkJ3PrFadFjbqbEnhj0CHFtLYkjxNThs+DPkUD/ikN80xL3pGetfD2QrEiw0dIsLNbBp/V8Zhetc2go1QKskStqb909lhDiGPW+Rfo4DeElbFoTaYcsbDGOkyGoacDty6s/4pZbpvjKEaGvPn/Gx8B4XzODWeQU+9nhTtnWi1/DNklo3B4Y/yGMK53fhlmEW44yQyedfUQAvPhEFbq98giyJVtzooTGmt7S3UQYokwPYhyiZ8jx2xTfVsrzzCP5qcB+9RS4iviVS+g2ssBO8yVnqZhxTuNwox7ioz1OobE7F9Zxlus4MP399E0fGFuZUu1U2Yb79u8uNrr2qHfoc7bS3LN1RSXNNtjHeeDPwQ+8GMY2LNO/EZCK8ZAyvn1kuFqWCDJllW26nJoYGE64ZCrBMpWs2kWGXKbMGbI2xmOSoGxKl2JDakbBkIVNomYjd2rLNUq2kx/SsWOZlHnzmJW55HeErBuNy662hRDdfVZmsYBg7LIPen2A6zeXVx/e8PjI+2zjEurD3cbqEt2CbbwLl2ABnkPmoXnezXDPzkjjUXU0H83NNScT0oCN09Ev/w4AAP//R7dEeHcTAAA=</script>
     <script src="https://cdn.jsdelivr.net/npm/minisearch@6.3.0/dist/umd/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
@@ -469,12 +477,12 @@
         </div>
         <div class="main-content">
             <p><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/logo.svg?raw=true" alt="Doccer" /></p>
-<h1 id="getting-started">Getting Started</h1>
+<h1 id="httpsgithubcomnigel2392doccerblobmainassetsstaticbootstrap-iconsterminalsvgrawtrue-getting-started"><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/bootstrap-icons/terminal.svg?raw=true" alt="" /> Getting Started</h1>
 <p>A simple documentation generator for your project.</p>
 <p>Easily build static HTML pages from your markdown files.</p>
-<h2 id="installation">Installation</h2>
+<h2 id="httpsgithubcomnigel2392doccerblobmainassetsstaticbootstrap-iconsdownloadsvgrawtrue-installation"><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/bootstrap-icons/download.svg?raw=true" alt="" /> Installation</h2>
 <pre style="color:#f8f8f2;background-color:#272822;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>go install github.com/Nigel2392/doccer@latest
-</span></span></code></pre><h2 id="usage">Usage</h2>
+</span></span></code></pre><h2 id="httpsgithubcomnigel2392doccerblobmainassetsstaticbootstrap-iconsquestion-lgsvgrawtrue-usage"><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/bootstrap-icons/question-lg.svg?raw=true" alt="" /> Usage</h2>
 <pre style="color:#f8f8f2;background-color:#272822;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>doccer init  <span style="color:#75715e"># Initialize a new skeleton for the documentation.</span>
 </span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>doccer serve <span style="color:#75715e"># Serve the documentation with a local server.</span>
 </span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>doccer build <span style="color:#75715e"># Build the documentation.</span>

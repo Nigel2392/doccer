@@ -38,24 +38,28 @@
         }
         main h1, main h2, main h3, main h4, main h5, main h6, main ol, main ul {
             margin: 0;
+            font-size: var(--font-size, 1em);
         }
         h1 {
-            font-size: 2.5em;
+            --font-size: 2.5rem;
+        }
+        h1 img, h2 img, h3 img, h4 img, h5 img, h6 img {
+            min-height: calc(var(--font-size) * 0.8);
         }
         h2 {
-            font-size: 2em;
+            --font-size: 2rem;
         }
         h3 {
-            font-size: 1.5em;
+            --font-size: 1.5rem;
         }
         h4 {
-            font-size: 1.2em;
+            --font-size: 1.2rem;
         }
         h5 {
-            font-size: 1em;
+            --font-size: 1rem;
         }
         h6 {
-            font-size: 0.8em;
+            --font-size: 0.8rem;
         }
         main > * {
             width: 100%;
@@ -214,6 +218,10 @@
             padding-left: 20px;
             width: 90%;
         }
+        .main-content svg {
+            vertical-align: middle;
+            display: inline-block;
+        }
         .documentation-links {
             display: flex;
             flex-direction: row;
@@ -299,7 +307,7 @@
             <input class="navbar-search-input" type="text" placeholder="Search..." />
         </li>
     </ul>
-    <script id="root_data" type="application/base64">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</script>
+    <script id="root_data" type="application/base64">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</script>
     <script src="https://cdn.jsdelivr.net/npm/minisearch@6.3.0/dist/umd/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>

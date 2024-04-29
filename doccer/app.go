@@ -269,10 +269,25 @@ func (d *Doccer) TemplateFuncs() template.FuncMap {
 		"GetTime": func() time.Time {
 			return time.Now()
 		},
+		// Returns an icon which can be used in markdown files.
+		// The regular "Icon" function can be used; but is not as good as it might mess up headings.
+		"MarkdownIcon": func(name string, alt ...string) string {
+			var altStr = name
+			if len(alt) > 1 {
+				altStr = strings.Join(alt, " ")
+			} else {
+				altStr = alt[0]
+			}
+			return fmt.Sprintf("![%s](%s)", altStr, d.AssetURL(path.Join(
+				"static/bootstrap-icons",
+				fmt.Sprintf("%s.svg", name),
+			)))
+		},
 		"Icon": func(name string, sizing ...string) template.HTML {
 			if name == "" {
 				return template.HTML("")
 			}
+
 			var w, h string
 			if len(sizing) == 1 {
 				var wh = strings.Split(sizing[0], "x")
@@ -303,26 +318,31 @@ func (d *Doccer) TemplateFuncs() template.FuncMap {
 			return template.HTML(svgStr)
 		},
 		"Asset": func(name string) template.HTML {
-
-			if IsLocal(d.config.Server.StaticUrl) {
-				var p = path.Join(d.config.Server.StaticUrl, name)
-				if !strings.HasPrefix(p, "/") {
-					p = "/" + p
-				}
-				return template.HTML(p)
-			}
-
-			if strings.HasPrefix(name, "/") && strings.HasSuffix(d.config.Server.StaticUrl, "/") {
-				name = strings.TrimPrefix(name, "/")
-			}
-
-			if !strings.HasSuffix(d.config.Server.StaticUrl, "/") && !strings.HasPrefix(name, "/") {
-				name = "/" + name
-			}
-
-			return template.HTML(d.config.Server.StaticUrl + name + "?raw=true")
+			return template.HTML(d.AssetURL(name))
 		},
 	}
+}
+
+// Asset returns the asset path
+func (d *Doccer) AssetURL(name string) string {
+
+	if IsLocal(d.config.Server.StaticUrl) {
+		var p = path.Join(d.config.Server.StaticUrl, name)
+		if !strings.HasPrefix(p, "/") {
+			p = "/" + p
+		}
+		return p
+	}
+
+	if strings.HasPrefix(name, "/") && strings.HasSuffix(d.config.Server.StaticUrl, "/") {
+		name = strings.TrimPrefix(name, "/")
+	}
+
+	if !strings.HasSuffix(d.config.Server.StaticUrl, "/") && !strings.HasPrefix(name, "/") {
+		name = "/" + name
+	}
+
+	return d.config.Server.StaticUrl + name + "?raw=true"
 }
 
 func (d *Doccer) Build() error {

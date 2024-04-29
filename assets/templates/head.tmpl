@@ -34,24 +34,28 @@
         }
         main h1, main h2, main h3, main h4, main h5, main h6, main ol, main ul {
             margin: 0;
+            font-size: var(--font-size, 1em);
         }
         h1 {
-            font-size: 2.5em;
+            --font-size: 2.5rem;
+        }
+        h1 img, h2 img, h3 img, h4 img, h5 img, h6 img {
+            min-height: calc(var(--font-size) * 0.8);
         }
         h2 {
-            font-size: 2em;
+            --font-size: 2rem;
         }
         h3 {
-            font-size: 1.5em;
+            --font-size: 1.5rem;
         }
         h4 {
-            font-size: 1.2em;
+            --font-size: 1.2rem;
         }
         h5 {
-            font-size: 1em;
+            --font-size: 1rem;
         }
         h6 {
-            font-size: 0.8em;
+            --font-size: 0.8rem;
         }
         main > * {
             width: 100%;
@@ -209,6 +213,10 @@
             padding-bottom: 10px;
             padding-left: 20px;
             width: 90%;
+        }
+        .main-content svg {
+            vertical-align: middle;
+            display: inline-block;
         }
         .documentation-links {
             display: flex;
