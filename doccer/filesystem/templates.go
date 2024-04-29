@@ -8,12 +8,6 @@ import (
 	"strings"
 )
 
-type Config struct {
-	Title string   // Title of the object
-	Next  []string // Path to the next object
-	Prev  []string // Path to the previous object
-}
-
 // Template represents a documentation template
 type Template struct {
 	// Base filesystem object
@@ -26,23 +20,9 @@ type Template struct {
 	Content []byte
 }
 
-func (d *Template) depthString() string {
-	return strings.Repeat("  ", d.Depth)
-}
-
-// Format the template as a string
-func (t *Template) String() string {
-	return t.Relative
-}
-
 // Format the template for %v
 func (t *Template) Format(f fmt.State, c rune) {
 	fmt.Fprintf(f, "%sTemplate: %s", t.depthString(), t.Name)
-}
-
-// GetName returns the name of the template
-func (t *Template) GetName() string {
-	return t.Name
 }
 
 // IsDirectory returns true if the object is a directory
@@ -51,7 +31,7 @@ func (d *Template) IsDirectory() bool {
 }
 
 // NewTemplate creates a new template
-func NewTemplate(name, root, filepath, output, relative string, depth int) (*Template, error) {
+func NewTemplate(rootDir *TemplateDirectory, name, root, filepath, output, relative string, depth int) (*Template, error) {
 
 	if !strings.HasSuffix(output, ".html") {
 		var (
@@ -64,18 +44,21 @@ func NewTemplate(name, root, filepath, output, relative string, depth int) (*Tem
 
 	var template = &Template{
 		FSBase: FSBase{
-			Name:     name,
-			Path:     filepath,
-			Root:     root,
-			Output:   output,
-			Relative: relative,
-			Depth:    depth,
+			Name:          name,
+			Path:          filepath,
+			Root:          root,
+			Output:        output,
+			Relative:      relative,
+			Depth:         depth,
+			RootDirectory: rootDir,
 		},
 	}
 
-	var err = template.loadContent()
+	template.Config = NewConfig(
+		&template.FSBase,
+	)
 
-	return template, err
+	return template, template.loadContent()
 }
 
 func (t *Template) URL() string {
@@ -141,16 +124,18 @@ loop:
 		case "title":
 			t.Title = value
 		case "next":
-			t.Next = strings.Split(value, ".")
-		case "prev":
-			t.Prev = strings.Split(value, ".")
+			t.Next = strings.Split(value, "/")
+		case "previous":
+			t.Previous = strings.Split(value, "/")
 		default:
 			contentIndex = i
 			break loop
 		}
 	}
 
-	t.Content = bytes.Join(lines[contentIndex:], []byte("\n"))
+	t.Content = bytes.Join(
+		lines[contentIndex:], []byte("\n"),
+	)
 
 	return nil
 }

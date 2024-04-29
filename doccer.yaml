@@ -17,3 +17,6 @@ menu:
       path: "configuration.md"
     - name: "Templates"
       path: "templates.md"
+
+context:
+  InstallURL: github.com/Nigel2392/doccer

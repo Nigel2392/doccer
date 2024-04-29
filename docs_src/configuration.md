@@ -1,5 +1,6 @@
 // Title: Configuring Doccer
-// Next: templates
+// Next: templates.md
+// Previous: README.md
 
 # Configuring Doccer
 

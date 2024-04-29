@@ -160,16 +160,12 @@ func buildMapFunc[T *filesystem.TemplateDirectory | *filesystem.Template](contex
 }
 
 func addTemplateContext(context *Context, t *filesystem.Template) {
-	if context.Title == "" {
-		context.Title = t.GetName()
-	}
-	context.object = t
 	var (
 		renderfn = render.Get(t.GetName())
 		tpl      = text_template.New("content")
 	)
 
-	tpl = tpl.Funcs(context.GetFuncs())
+	tpl = tpl.Funcs(context.Config.Instance.TemplateFuncs())
 	tpl, err := tpl.Parse(string(t.Content))
 	if err != nil {
 		context.Content = template.HTML(fmt.Sprintf("Error: %s", err))
@@ -191,14 +187,5 @@ func addTemplateContext(context *Context, t *filesystem.Template) {
 	}
 
 	context.Content = template.HTML(b2.String())
-
-	if t.Config.Title != "" {
-		context.Title = t.Config.Title
-	}
-
-	//if len(t.Config.Next) > 0 {
-	//}
-	//
-	//if len(t.Config.Prev) > 0 {
-	//}
+	context.object = t
 }

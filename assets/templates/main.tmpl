@@ -4,19 +4,20 @@
             <div class="object-information">
                 <span class="object-information__title">{{ .Object }}</span>
             </div>
-            {{ if (or .Previous .Next) }}
+            {{ $NextObject := .Object.GetNext }}
+            {{ $PrevObject := .Object.GetPrevious }}
+            {{ if (or $NextObject $PrevObject) }}
                 <div class="pagination">
-                    {{ if .Previous }}
-                        <a href="{{ .Previous.URL }}" class="pagination__link pagination__link--previous">
-                            {{ .Previous.GetName }}
+                    {{ if $PrevObject }}
+                        <a href="{{ $PrevObject.URL }}" class="pagination__link pagination__link--previous">
+                            {{ $PrevObject.GetTitle }}
                         </a>
                     {{ else }}
                         <span class="pagination__placeholder"></span>
-
                     {{ end }}
-                    {{ if .Next }}
-                        <a href="{{ .Next.URL }}" class="pagination__link pagination__link--next">
-                            {{ .Next.GetName }} 
+                    {{ if $NextObject }}
+                        <a href="{{ $NextObject.URL }}" class="pagination__link pagination__link--next">
+                            {{ $NextObject.GetTitle }} 
                         </a>
                     {{ else }}
                         <span class="pagination__placeholder"></span>

@@ -1,4 +1,5 @@
 // Title: Setting up Templates
+// Previous: configuration.md
 
 # Setting up Templates
 
@@ -31,6 +32,10 @@ Markdown files will have access to the following variables by default:
     - `.Certificate`     - Certificate for the server
     
 - `.Object`           - The current object being worked on.
+  - `.GetName`        - A function to get the name of the object.
+  - `.GetTitle`       - A function to get the title of the object.
+  - `.GetNext`        - A function to get the next object.
+  - `.GetPrevious`    - A function to get the previous object.
 
 - `.Menu`   - The menu items defined in the configuration file.
   (Otherwise automatically generated).

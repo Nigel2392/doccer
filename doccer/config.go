@@ -115,7 +115,7 @@ func (c *Config) Init() error {
 		inp = c.Project.InputDirectory
 		out = c.Project.OutputDirectory
 	)
-	rootDirectory, err := filesystem.NewTemplateDirectory("", inp, inp, out, "", 0)
+	rootDirectory, err := filesystem.NewTemplateDirectory(nil, "", inp, inp, out, "", 0)
 	if err != nil {
 		return err
 	}

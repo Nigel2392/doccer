@@ -98,7 +98,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 	if len(d.config.Menu.Items) == 0 {
 		d.config.RootDirectory.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {
 			menu.Items = append(menu.Items, &MenuItem{
-				Name: v.Name,
+				Name: v.GetTitle(),
 				URL:  ObjectURL(d.config.Server.BaseURL, v, isServing),
 			})
 			return true
@@ -106,7 +106,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 
 		d.config.RootDirectory.Templates.ForEach(func(key string, v *filesystem.Template) bool {
 			menu.Items = append(menu.Items, &MenuItem{
-				Name: v.Name,
+				Name: v.GetTitle(),
 				URL:  ObjectURL(d.config.Server.BaseURL, v, isServing),
 			})
 			return true
@@ -139,7 +139,7 @@ func (d *Doccer) buildMenu(m *Menu, dir *filesystem.TemplateDirectory, isServing
 			}
 
 			if item.Name == "" {
-				item.Name = obj.GetName()
+				item.Name = obj.GetTitle()
 			}
 
 			url = ObjectURL(d.config.Server.BaseURL, obj, isServing)
@@ -422,6 +422,10 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 					Depth:    dir.Depth,
 				},
 			}
+			tpl.Config = filesystem.NewConfig(
+				&tpl.FSBase,
+			)
+
 			var b bytes.Buffer
 			dir.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {
 				//var o = &contextObject{
@@ -429,7 +433,7 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 				//	context: context,
 				//}
 				fmt.Fprintf(&b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
-				fmt.Fprintf(&b, ".%s%s", string(filepath.Separator), v.GetName())
+				fmt.Fprint(&b, v.GetTitle())
 				fmt.Fprintf(&b, "</a></p>\n")
 				return true
 			})
@@ -440,7 +444,7 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 				//	context: context,
 				//}
 				fmt.Fprintf(&b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
-				fmt.Fprintf(&b, ".%s%s", string(filepath.Separator), v.GetName())
+				fmt.Fprint(&b, v.GetTitle())
 				fmt.Fprintf(&b, "</a></p>\n")
 				return true
 			})

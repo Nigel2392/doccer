@@ -15,7 +15,6 @@ import (
 // This is used to generate a tree- like structure for documentation templates.
 type TemplateDirectory struct {
 	FSBase
-	Config
 
 	// Index template
 	Index *Template
@@ -28,7 +27,7 @@ type TemplateDirectory struct {
 }
 
 // NewTemplateDirectory creates a new template directory
-func NewTemplateDirectory(name, root, path, output, relative string, depth int) (*TemplateDirectory, error) {
+func NewTemplateDirectory(rootDir *TemplateDirectory, name, root, path, output, relative string, depth int) (*TemplateDirectory, error) {
 
 	if relative == "" && name != "" {
 		relative = name
@@ -36,15 +35,20 @@ func NewTemplateDirectory(name, root, path, output, relative string, depth int) 
 
 	var dir = &TemplateDirectory{
 		FSBase: FSBase{
-			Name:     name,
-			Root:     root,
-			Path:     path,
-			Output:   output,
-			Relative: relative,
-			Depth:    depth,
+			Name:          name,
+			Root:          root,
+			Path:          path,
+			Output:        output,
+			Relative:      relative,
+			Depth:         depth,
+			RootDirectory: rootDir,
 		},
 		Subdirectories: orderedmap.New[string, *TemplateDirectory](),
 		Templates:      orderedmap.New[string, *Template](),
+	}
+
+	if rootDir == nil {
+		rootDir = dir
 	}
 
 	var dirs, err = os.ReadDir(path)
@@ -77,23 +81,20 @@ func NewTemplateDirectory(name, root, path, output, relative string, depth int) 
 		)
 
 		if d.IsDir() {
-			var subDir, err = NewTemplateDirectory(d.Name(), root, fPath, oPath, rPath, dir.Depth+1)
+			var subDir, err = NewTemplateDirectory(rootDir, d.Name(), root, fPath, oPath, rPath, dir.Depth+1)
 			if err != nil {
 				return nil, err
 			}
 
 			dir.Subdirectories.Set(subDir.Name, subDir)
 		} else {
-			var template, err = NewTemplate(d.Name(), root, fPath, oPath, rPath, dir.Depth+1)
+			var template, err = NewTemplate(rootDir, d.Name(), root, fPath, oPath, rPath, dir.Depth+1)
 			if err != nil {
 				return nil, err
 			}
 
 			if IsIndexFile(template.Name) {
 				dir.Index = template
-				dir.Title = template.Title
-				dir.Next = template.Next
-				dir.Prev = template.Prev
 			} else {
 				dir.Templates.Set(template.Name, template)
 			}
@@ -121,6 +122,21 @@ func (d *TemplateDirectory) Format(f fmt.State, c rune) {
 // GetName returns the name of the directory
 func (d *TemplateDirectory) GetName() string {
 	return d.Name
+}
+
+// GetTitle returns the title of the directory
+func (t *TemplateDirectory) GetTitle() string {
+	return t.Index.Title
+}
+
+// GetNext returns the next object in the directory
+func (d *TemplateDirectory) GetNext() Object {
+	return d.Index.GetNext()
+}
+
+// GetPrevious returns the previous object in the directory
+func (d *TemplateDirectory) GetPrevious() Object {
+	return d.Index.GetPrevious()
 }
 
 // IsDirectory returns true if the object is a directory
@@ -162,8 +178,16 @@ func (d *TemplateDirectory) Traverse(fn func(*TemplateDirectory) (o Object, next
 
 // Walk walks the directory tree
 func (d *TemplateDirectory) Walk(parts []string) (Object, bool) {
+	if parts == nil {
+		return nil, false
+	}
+
 	if len(parts) == 0 {
 		return d, true
+	}
+
+	if len(parts) == 1 && d.Index != nil && parts[0] == d.Index.Name {
+		return d.Index, true
 	}
 
 	var (

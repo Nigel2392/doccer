@@ -2,8 +2,6 @@ package doccer
 
 import (
 	"html/template"
-	"maps"
-	"reflect"
 
 	"github.com/Nigel2392/doccer/doccer/filesystem"
 )
@@ -20,6 +18,19 @@ type Menu struct {
 	Items []*MenuItem `yaml:"items"`
 }
 
+func makeContextObject(object filesystem.Object, context *Context) filesystem.Object {
+	if object == nil {
+		return nil
+	}
+	if _, ok := object.(*contextObject); ok {
+		return object
+	}
+	return &contextObject{
+		Object:  object,
+		context: context,
+	}
+}
+
 type contextObject struct {
 	// The current object
 	Object filesystem.Object
@@ -30,6 +41,26 @@ type contextObject struct {
 
 func (c *contextObject) GetName() string {
 	return c.Object.GetName()
+}
+
+func (c *contextObject) GetTitle() string {
+	return c.Object.GetTitle()
+}
+
+func (c *contextObject) GetNext() filesystem.Object {
+	var next = c.Object.GetNext()
+	if next == nil {
+		return nil
+	}
+	return makeContextObject(next, c.context)
+}
+
+func (c *contextObject) GetPrevious() filesystem.Object {
+	var previous = c.Object.GetPrevious()
+	if previous == nil {
+		return nil
+	}
+	return makeContextObject(previous, c.context)
 }
 
 func (c *contextObject) IsDirectory() bool {
@@ -54,9 +85,6 @@ type Context struct {
 	// Flag to indicate if the server is serving over HTTP
 	isServing bool
 
-	// Title of the current documentation page
-	Title string
-
 	// Current object being rendered
 	object filesystem.Object
 
@@ -77,55 +105,9 @@ type Context struct {
 
 	// The directory tree
 	Tree map[string]interface{}
-
-	// Pagination
-	Previous filesystem.Object
-	Next     filesystem.Object
 }
 
 // Object represents the documentation object
 func (c *Context) Object() filesystem.Object {
-	if _, ok := c.object.(*contextObject); ok {
-		return c.object
-	}
-
-	return &contextObject{
-		Object:  c.object,
-		context: c,
-	}
-}
-
-// GetFuncs returns the template functions
-func (c *Context) GetFuncs() template.FuncMap {
-	var m = template.FuncMap{
-		"Set": func(fieldname string, value any) string {
-			var rValue = reflect.ValueOf(c)
-			if rValue.Kind() == reflect.Ptr {
-				rValue = rValue.Elem()
-			}
-			var rField = rValue.FieldByName(fieldname)
-			if rField.IsValid() {
-				rField.Set(reflect.ValueOf(value))
-			} else {
-				c.Ctx[fieldname] = value
-			}
-			return ""
-		},
-		"Get": func(fieldname string) any {
-			var rValue = reflect.ValueOf(c)
-			if rValue.Kind() == reflect.Ptr {
-				rValue = rValue.Elem()
-			}
-			var rField = rValue.FieldByName(fieldname)
-			if rField.IsValid() {
-				return rField.Interface()
-			}
-			return c.Ctx[fieldname]
-		},
-	}
-	var funcs = c.Config.Instance.TemplateFuncs()
-
-	maps.Copy(m, funcs)
-
-	return m
+	return makeContextObject(c.object, c)
 }

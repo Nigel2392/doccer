@@ -1,5 +1,5 @@
 // Title: Doccer DocGen
-// Next: configuration
+// Next: configuration.md
 
 ![Doccer]({{ Asset "static/logo.svg" }})
 
@@ -13,7 +13,7 @@ Easily build static HTML pages from your markdown files.
 ## Installation
 
 ```bash
-go install github.com/Nigel2392/doccer@latest
+go install {{ index .Ctx.InstallURL }}@latest
 ```
 
 ## Usage
