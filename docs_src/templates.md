@@ -9,6 +9,8 @@ The templates are stored in the `templates` directory, typically found in `./.do
 
 Each markdown file will be embedded into the `base.tmpl` template.
 
+## Variables
+
 Markdown files will have access to the following variables by default:
 
 - `.Config` - The configuration object.
@@ -45,6 +47,8 @@ Markdown files will have access to the following variables by default:
 
 - `Asset`   - A function to prefix your staticfiles correctly.
 
+## Directives
+
 Your markdown files can individually configure themselves. Think of changing titles, setting up related pages etc.
 
 These configurations are made at the top of the markdown file.
@@ -53,6 +57,7 @@ Allowed directives are:
   - `Title`    - The title of the page.
   - `Next`     - The next page to navigate to.
   - `Previous` - The previous page to navigate to.
+
 
 An example:
     
