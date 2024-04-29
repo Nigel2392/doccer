@@ -49,6 +49,11 @@ Your markdown files can individually configure themselves. Think of changing tit
 
 These configurations are made at the top of the markdown file.
 
+Allowed directives are:
+  - `Title`    - The title of the page.
+  - `Next`     - The next page to navigate to.
+  - `Previous` - The previous page to navigate to.
+
 An example:
     
 ```markdown

@@ -3,9 +3,14 @@ package filesystem
 import (
 	"bytes"
 	"fmt"
+	"html/template"
+	"io"
 	"os"
 	"path"
 	"strings"
+	text_template "text/template"
+
+	"github.com/Nigel2392/doccer/doccer/render"
 )
 
 // Template represents a documentation template
@@ -17,7 +22,9 @@ type Template struct {
 	Config `json:",inline"`
 
 	// Template content
-	Content string `json:"content"`
+	Content    string `json:"content"`
+	isTextFile bool
+	loaded     bool
 }
 
 // Format the template for %v
@@ -30,18 +37,13 @@ func (d *Template) IsDirectory() bool {
 	return false
 }
 
+// IsTextFile returns true if the file is a text file
+func (t *Template) IsTextFile() bool {
+	return t.isTextFile
+}
+
 // NewTemplate creates a new template
 func NewTemplate(rootDir *TemplateDirectory, name, root, filepath, output, relative string, depth int) (*Template, error) {
-
-	if !strings.HasSuffix(output, ".html") {
-		var (
-			ext  = path.Ext(output)
-			base = output[:len(output)-len(ext)]
-		)
-
-		output = fmt.Sprintf("%s.html", base)
-	}
-
 	var template = &Template{
 		FSBase: FSBase{
 			Name:          name,
@@ -87,55 +89,100 @@ func (t *Template) loadContent() error {
 		return err
 	}
 
-	content = bytes.TrimSpace(content)
+	// Check if the file is a text file
+	t.isTextFile = isTextFile(content)
 
-	var (
-		lines = bytes.Split(
-			bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n")),
-			[]byte("\n"),
-		)
-		contentIndex = 0
-	)
-
-loop:
-	for i, line := range lines {
-		line = bytes.TrimSpace(line)
-		if !bytes.HasPrefix(line, []byte("//")) {
-			contentIndex = i
-			break loop
-		}
-
+	// Setup the output file.
+	// This can only be done now - we need to know if the file is a text file
+	if t.isTextFile && !strings.HasSuffix(t.Output, ".html") {
 		var (
-			trimmed = bytes.TrimPrefix(line, []byte("//"))
-			parts   = bytes.SplitN(trimmed, []byte(":"), 2)
+			ext  = path.Ext(t.Output)
+			base = t.Output[:len(t.Output)-len(ext)]
 		)
 
-		if len(parts) != 2 {
-			contentIndex = i
-			break loop
-		}
-
-		var (
-			key   = strings.TrimSpace(string(parts[0]))
-			value = strings.TrimSpace(string(parts[1]))
-		)
-
-		switch strings.ToLower(key) {
-		case "title":
-			t.Title = value
-		case "next":
-			t.Next = strings.Split(value, "/")
-		case "previous":
-			t.Previous = strings.Split(value, "/")
-		default:
-			contentIndex = i
-			break loop
-		}
+		t.Output = fmt.Sprintf("%s.html", base)
 	}
 
-	t.Content = string(bytes.Join(
-		lines[contentIndex:], []byte("\n"),
-	))
+	if t.isTextFile {
+
+		content = bytes.TrimSpace(content)
+
+		var (
+			lines = bytes.Split(
+				bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n")),
+				[]byte("\n"),
+			)
+			contentIndex = 0
+		)
+
+	loop:
+		for i, line := range lines {
+			line = bytes.TrimSpace(line)
+			if !bytes.HasPrefix(line, []byte("//")) {
+				contentIndex = i
+				break loop
+			}
+
+			var (
+				trimmed = bytes.TrimPrefix(line, []byte("//"))
+				parts   = bytes.SplitN(trimmed, []byte(":"), 2)
+			)
+
+			if len(parts) != 2 {
+				contentIndex = i
+				break loop
+			}
+
+			var (
+				key   = strings.TrimSpace(string(parts[0]))
+				value = strings.TrimSpace(string(parts[1]))
+			)
+
+			switch strings.ToLower(key) {
+			case "title":
+				t.Title = value
+			case "next":
+				t.Next = strings.Split(value, "/")
+			case "previous":
+				t.Previous = strings.Split(value, "/")
+			default:
+				contentIndex = i
+				break loop
+			}
+		}
+
+		t.Content = string(bytes.Join(
+			lines[contentIndex:], []byte("\n"),
+		))
+	} else {
+		t.Content = string(content)
+	}
 
 	return nil
+}
+
+// Render the template
+func (t *Template) Render(w io.Writer, funcs template.FuncMap, context interface{}) error {
+	var renderfn = render.For(t.GetName())
+
+	if !t.loaded && t.isTextFile {
+		var tpl = text_template.New("content")
+
+		tpl = tpl.Funcs(funcs)
+		tpl, err := tpl.Parse(t.Content)
+		if err != nil {
+			return err
+		}
+
+		var b bytes.Buffer
+		err = tpl.ExecuteTemplate(&b, "content", context)
+		if err != nil {
+			return err
+		}
+
+		t.Content = b.String()
+		t.loaded = true
+	}
+
+	return renderfn(w, []byte(t.Content))
 }

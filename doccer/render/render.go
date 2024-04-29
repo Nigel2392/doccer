@@ -19,7 +19,7 @@ func Register(filetype string, render func(io.Writer, []byte) error) {
 	renderMap[filetype] = render
 }
 
-func Get(filename string) func(io.Writer, []byte) error {
+func For(filename string) func(io.Writer, []byte) error {
 	var ext = path.Ext(filename)
 	if ext == "" {
 		return renderRaw

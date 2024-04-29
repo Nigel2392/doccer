@@ -482,17 +482,13 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 	var _, isServing = w.(http.ResponseWriter)
 	var context = d.GetContext(isServing)
 
+	if t, ok := obj.(*filesystem.Template); ok && !t.IsTextFile() {
+		return t.Render(w, d.TemplateFuncs(), context)
+	}
+
 	// Serve the object
 	if obj.IsDirectory() {
 		var dir = obj.(*filesystem.TemplateDirectory)
-
-		// dir.Subdirectories.ForEach(func(key string, v *TemplateDirectory) bool {
-		// 	fmt.Fprintf(w, "<p><a href=\"/%s\">", v.Relative)
-		// 	fmt.Fprintf(w, ".%s%s", string(filepath.Separator), v.GetName())
-		// 	fmt.Fprintf(w, "</a></p>\n")
-		// 	return true
-		// })
-
 		if dir.Index != nil {
 			addTemplateContext(
 				context, dir.Index,

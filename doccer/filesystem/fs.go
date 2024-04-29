@@ -1,8 +1,11 @@
 package filesystem
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"strings"
+	"unicode/utf8"
 )
 
 var (
@@ -14,6 +17,16 @@ var (
 func IsIndexFile(name string) bool {
 	return strings.HasPrefix(name, "index.") ||
 		strings.HasPrefix(strings.ToLower(name), "readme.")
+}
+
+// isTextFile returns true if the file is a text file
+func isTextFile(content []byte) bool {
+	fileScanner := bufio.NewScanner(
+		bytes.NewReader(content),
+	)
+	fileScanner.Split(bufio.ScanLines)
+	fileScanner.Scan()
+	return utf8.ValidString(fileScanner.Text())
 }
 
 // Object represents a documentation object

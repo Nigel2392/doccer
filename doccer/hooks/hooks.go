@@ -6,7 +6,7 @@ import (
 	"slices"
 )
 
-var _hooks = make(map[string][]*_Hook) // Map of string to hook functions.
+var DefaultRegistry = make(HookRegistry)
 
 type _Hook struct {
 	NumArgs  int
@@ -78,21 +78,37 @@ func (h *_Hook) Call(args ...interface{}) (value interface{}, err error) {
 	return r, nil
 }
 
-// Register a new hook
-func Register(identifier string, order int, hooks ...interface{}) {
-	var h, ok = _hooks[identifier]
+type HookRegistry map[string][]*_Hook
+
+func (h HookRegistry) Register(identifier string, order int, hooks ...interface{}) {
+	var hooksList, ok = h[identifier]
 	if !ok {
-		h = make([]*_Hook, 0)
+		hooksList = make([]*_Hook, 0)
 	}
 	for _, hook := range hooks {
-		h = append(h, NewHook(order, hook))
+		hooksList = append(hooksList, NewHook(order, hook))
 	}
-	_hooks[identifier] = h
+	h[identifier] = hooksList
+}
+
+// Register a new hook
+func Register(identifier string, order int, hooks ...interface{}) {
+	DefaultRegistry.Register(identifier, order, hooks...)
+}
+
+// Get the hooks
+func Get[T any](identifier string) (h []T) {
+	return get[T](DefaultRegistry, identifier)
+}
+
+// Get the hooks from a registry
+func GetFrom[T any](registry HookRegistry, identifier string) (h []T) {
+	return get[T](registry, identifier)
 }
 
 // Get the hooks, casting the interfaces back to functions
-func Get[T any](identifier string) (h []T) {
-	var hooks, ok = _hooks[identifier]
+func get[T any](registry HookRegistry, identifier string) (h []T) {
+	var hooks, ok = registry[identifier]
 	if !ok {
 		return make([]T, 0)
 	}

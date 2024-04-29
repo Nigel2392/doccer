@@ -11,10 +11,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	text_template "text/template"
 
 	"github.com/Nigel2392/doccer/doccer/filesystem"
-	"github.com/Nigel2392/doccer/doccer/render"
 )
 
 var replacer = strings.NewReplacer(
@@ -161,31 +159,15 @@ func buildMapFunc[T *filesystem.TemplateDirectory | *filesystem.Template](contex
 
 func addTemplateContext(context *Context, t *filesystem.Template) {
 	var (
-		renderfn = render.Get(t.GetName())
-		tpl      = text_template.New("content")
+		b bytes.Buffer
+		f = context.Config.Instance.TemplateFuncs()
 	)
-
-	tpl = tpl.Funcs(context.Config.Instance.TemplateFuncs())
-	tpl, err := tpl.Parse(string(t.Content))
-	if err != nil {
-		context.Content = template.HTML(fmt.Sprintf("Error: %s", err))
+	if err := t.Render(&b, f, context); err != nil {
+		context.Content = template.HTML(
+			fmt.Sprintf("error rendering template: %s", err),
+		)
 		return
 	}
-
-	var b bytes.Buffer
-	err = tpl.ExecuteTemplate(&b, "content", context)
-	if err != nil {
-		context.Content = template.HTML(fmt.Sprintf("Error: %s", err))
-		return
-	}
-
-	var b2 bytes.Buffer
-	err = renderfn(&b2, b.Bytes())
-	if err != nil {
-		context.Content = template.HTML(fmt.Sprintf("Error: %s", err))
-		return
-	}
-
-	context.Content = template.HTML(b2.String())
+	context.Content = template.HTML(b.String())
 	context.object = t
 }
