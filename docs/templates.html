@@ -205,7 +205,7 @@
     </head>
     <body>
         
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="navbar-logo">
             <a href="/doccer/">
                 
@@ -223,27 +223,146 @@
         </div>
         
         
-<ul class="navbar-menu">
-    
-        <li>
-            <a href="/doccer/" class="navbar-item navbar-title">
-                Getting Started
-            </a>
+    <style>
+        .navbar-search-menu {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .navbar-search-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin: 5px 10px;
+            border-radius: 0.5rem;
+            border: 1px solid #ccc;
+        }
+        .navbar-search-wrapper .navbar-search-icon {
+            width: 35px;
+            height: 35px;
+            padding-top: 5px;
+            padding-left: 10px;
+            padding-bottom: 5px;
+            fill: currentColor;
+        }
+        .navbar-search-wrapper .navbar-search-input {
+            border: none;
+            background: none;
+            color: inherit;
+            font-size: 1rem;
+            margin: 0;
+            width: 100%;
+            outline: none;
+            height: 40px;
+        }
+
+    </style>
+    <ul class="navbar-search-menu" id="navbar-search">
+        <li class="navbar-search-wrapper">
+            <svg class="navbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0z" fill="none"/>
+                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input class="navbar-search-input" type="text" placeholder="Search..." />
         </li>
-    
-        <li>
-            <a href="/doccer/configuration.html" class="navbar-item ">
-                Configuration
-            </a>
-        </li>
-    
-        <li>
-            <a href="/doccer/templates.html" class="navbar-item ">
-                Templates
-            </a>
-        </li>
-    
-</ul>
+    </ul>
+    <script id="root_data" type="application/json">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</script>
+    <script src="https://cdn.jsdelivr.net/npm/minisearch@6.3.0/dist/umd/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        function decodeBase64(s) {
+            var e={},i,b=0,c,x,l=0,a,r='',w=String.fromCharCode,L=s.length;
+            var A="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            for(i=0;i<64;i++){e[A.charAt(i)]=i;}
+            for(x=0;x<L;x++){
+                c=e[s.charAt(x)];b=(b<<6)+c;l+=6;
+                while(l>=8){((a=(b>>>(l-=8))&0xff)||(x<(L-2)))&&(r+=w(a));}
+            }
+            return r;
+        };
+        document.addEventListener('DOMContentLoaded', async function() {
+            let data = document.getElementById('root_data').textContent;
+            
+            
+            
+            
+            
+            
+            data     = atob(data);
+            data     = data.split('').map(function(x){return x.charCodeAt(0);});
+            data     = new Uint8Array(data);
+            data     = pako.inflate(data);
+            data     = String.fromCharCode.apply(null, new Uint16Array(data));
+            data     =  JSON.parse(data);
+            
+            const searchInput = document.querySelector('.navbar-search-input');
+            const miniSearch = new MiniSearch({
+                fields: ['title', 'content'],
+                storeFields: ['title', 'content', 'url'],
+                idField: 'url',
+                searchOptions: {
+                    boost: { title: 2, url: 1 }
+                },
+            });
+
+            miniSearch.addAll(data);
+
+            const searchResults = document.createElement('ul');
+            searchResults.innerHTML = '';
+            searchResults.classList.add('navbar-menu');
+            const navbarSearch = document.getElementById('navbar-search');
+            navbarSearch.appendChild(searchResults);
+            
+            
+            
+            
+
+            searchInput.addEventListener('input', function() {
+                searchResults.innerHTML = '';
+                const query = searchInput.value;
+                if (query === '') {
+                    return;
+                }
+                const results = miniSearch.search(query, {
+                    combineWith: 'AND',
+                });
+                results.forEach(function(result) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = result.url;
+                    a.textContent = result.title;
+                    a.classList.add('navbar-item');
+                    li.appendChild(a);
+                    searchResults.appendChild(li);
+                });
+            });
+        });
+    </script>
+
+
+    <ul class="navbar-menu">
+        
+            <li>
+                <a href="/doccer/" class="navbar-item navbar-title" >
+                    Getting Started
+                </a>
+            </li>
+        
+            <li>
+                <a href="/doccer/configuration.html" class="navbar-item " >
+                    Configuration
+                </a>
+            </li>
+        
+            <li>
+                <a href="/doccer/templates.html" class="navbar-item " >
+                    Templates
+                </a>
+            </li>
+        
+    </ul>
 
 
         <ul class="navbar-menu navbar-footer">

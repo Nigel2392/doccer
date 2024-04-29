@@ -2,6 +2,8 @@ package doccer
 
 import (
 	"bytes"
+	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -202,18 +204,29 @@ func (d *Doccer) GetContext(isServing bool) *Context {
 func (d *Doccer) TemplateFuncs() template.FuncMap {
 	return template.FuncMap{
 		"JSON": func(v interface{}) template.HTML {
-			var b, err = json.Marshal(v)
+			var b, err = json.MarshalIndent(v, "", "  ")
 			if err != nil {
 				return template.HTML(fmt.Sprintf("Error: %s", err))
 			}
 			return template.HTML(b)
 		},
-		"json_script": func(v interface{}, elementId string) template.HTML {
+		"encodeZipped": func(v interface{}, elementId string) template.HTML {
 			var b, err = json.Marshal(v)
 			if err != nil {
 				return template.HTML(fmt.Sprintf("Error: %s", err))
 			}
-			return template.HTML(fmt.Sprintf("<script id=\"%s\" type=\"application/json\">%s</script>", elementId, b))
+			var buf bytes.Buffer
+			var z = gzip.NewWriter(&buf)
+			_, err = z.Write(b)
+			if err != nil {
+				return template.HTML(fmt.Sprintf("Error: %s", err))
+			}
+			err = z.Close()
+			if err != nil {
+				return template.HTML(fmt.Sprintf("Error: %s", err))
+			}
+			var data = buf.Bytes()
+			return template.HTML(fmt.Sprintf("<script id=\"%s\" type=\"application/json\">%s</script>", elementId, base64.StdEncoding.EncodeToString(data)))
 		},
 		"RenderHook": func(c *Context, hook string) template.HTML {
 			var h = hooks.Get[RendererHook](hook)
@@ -500,15 +513,15 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 				&tpl.FSBase,
 			)
 
-			var b bytes.Buffer
+			var b = new(strings.Builder)
 			dir.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {
 				//var o = &contextObject{
 				//	Object:  v,
 				//	context: context,
 				//}
-				fmt.Fprintf(&b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
-				fmt.Fprint(&b, v.GetTitle())
-				fmt.Fprintf(&b, "</a></p>\n")
+				fmt.Fprintf(b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
+				fmt.Fprint(b, v.GetTitle())
+				fmt.Fprintf(b, "</a></p>\n")
 				return true
 			})
 
@@ -517,13 +530,13 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 				//	Object:  v,
 				//	context: context,
 				//}
-				fmt.Fprintf(&b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
-				fmt.Fprint(&b, v.GetTitle())
-				fmt.Fprintf(&b, "</a></p>\n")
+				fmt.Fprintf(b, "<p><a href=\"%s\">", ObjectURL(d.config.Server.BaseURL, v, isServing))
+				fmt.Fprint(b, v.GetTitle())
+				fmt.Fprintf(b, "</a></p>\n")
 				return true
 			})
 
-			tpl.Content = b.Bytes()
+			tpl.Content = b.String()
 			addTemplateContext(
 				context, tpl,
 			)

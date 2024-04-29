@@ -1,11 +1,11 @@
 {{ define "feature_template" }}
-<ul class="navbar-menu">
-    {{ range $menuItem := .Menu.Items }}
-        <li>
-            <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}">
-                {{ $menuItem.Name }}
-            </a>
-        </li>
-    {{ end }}
-</ul>
+    <ul class="navbar-menu">
+        {{ range $menuItem := .Menu.Items }}
+            <li>
+                <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
+                    {{ $menuItem.Name }}
+                </a>
+            </li>
+        {{ end }}
+    </ul>
 {{ end }}

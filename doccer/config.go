@@ -97,13 +97,8 @@ func (c *Config) Init() error {
 		"templates/navbar.tmpl",
 		"templates/main.tmpl",
 		"templates/head.tmpl",
+		"templates/base.tmpl",
 	}
-
-	for _, hook := range hooks.Get[RegisterTemplateHook]("register_config_templates") {
-		files = append(files, hook(c.Instance))
-	}
-
-	files = append(files, "templates/base.tmpl")
 
 	// Create the template
 	var tpl = template.New("base")
@@ -130,6 +125,13 @@ func (c *Config) Init() error {
 	rootDirectory.Root = inp
 	rootDirectory.Output = out
 	c.RootDirectory = rootDirectory
+
+	var loadedHooks = hooks.Get[LoadHook]("app_loaded")
+	for _, hook := range loadedHooks {
+		if err := hook(c.Instance, c); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

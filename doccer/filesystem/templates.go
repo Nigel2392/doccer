@@ -17,7 +17,7 @@ type Template struct {
 	Config `json:",inline"`
 
 	// Template content
-	Content []byte `json:"content"`
+	Content string `json:"content"`
 }
 
 // Format the template for %v
@@ -133,9 +133,9 @@ loop:
 		}
 	}
 
-	t.Content = bytes.Join(
+	t.Content = string(bytes.Join(
 		lines[contentIndex:], []byte("\n"),
-	)
+	))
 
 	return nil
 }

@@ -13,6 +13,7 @@ type (
 		Render(*Context) string
 	}
 	DoccerHook           func(*Doccer) error
+	LoadHook             func(*Doccer, *Config) error
 	RegisterTemplateHook func(*Doccer) string
 	ConstructMenuHook    func(*Doccer, *Menu)
 	RendererHook         func(*Context) Renderer
@@ -56,9 +57,13 @@ func init() {
 			)
 		},
 	)
+
 	hooks.Register(
-		"register_config_templates", 0, func(d *Doccer) string {
-			return "templates/hooks/navbar_menu.tmpl"
+		"render_navbar_content", -10,
+		func(c *Context) Renderer {
+			return TemplatePath(
+				"templates/hooks/navbar_search.tmpl",
+			)
 		},
 	)
 }

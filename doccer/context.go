@@ -1,6 +1,7 @@
 package doccer
 
 import (
+	"encoding/json"
 	"html/template"
 
 	"github.com/Nigel2392/doccer/doccer/filesystem"
@@ -8,9 +9,10 @@ import (
 
 // MenuItem represents a menu item
 type MenuItem struct {
-	Name      string `yaml:"name"`
-	URL       string `yaml:"path"`
-	Classname string `yaml:"classname"`
+	Name       string            `yaml:"name"`
+	URL        string            `yaml:"path"`
+	Classname  string            `yaml:"classname"`
+	Attributes map[string]string `yaml:"attributes"`
 }
 
 // Menu represents a menu
@@ -80,6 +82,27 @@ func (c *contextObject) String() string {
 	return c.Object.String()
 }
 
+func (c *contextObject) MarshalJSON() ([]byte, error) {
+	var obj = map[string]interface{}{
+		"name":   c.GetName(),
+		"title":  c.GetTitle(),
+		"url":    c.URL(),
+		"is_dir": c.IsDirectory(),
+	}
+
+	if c.IsDirectory() {
+		var dir = c.Object.(*filesystem.TemplateDirectory)
+		if dir.Index != nil {
+			obj["content"] = dir.Index.Content
+		} else {
+			obj["content"] = ""
+		}
+	} else {
+		obj["content"] = c.Object.(*filesystem.Template).Content
+	}
+	return json.Marshal(obj)
+}
+
 // Context represents the context for the documentation
 type Context struct {
 
@@ -116,4 +139,15 @@ func (c *Context) IsServing() bool {
 // Object represents the documentation object
 func (c *Context) Object() filesystem.Object {
 	return makeContextObject(c.object, c)
+}
+
+// FlatObjectList returns a flat list of objects
+func (c *Context) FlatObjectList() []filesystem.Object {
+	var list []filesystem.Object
+	var fn = func(obj filesystem.Object) bool {
+		list = append(list, makeContextObject(obj, c))
+		return true
+	}
+	c.Config.RootDirectory.ForEach(fn)
+	return list
 }

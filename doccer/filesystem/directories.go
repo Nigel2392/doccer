@@ -20,10 +20,10 @@ type TemplateDirectory struct {
 	Index *Template `json:"index"`
 
 	// Subdirectories
-	Subdirectories *orderedmap.Map[string, *TemplateDirectory]
+	Subdirectories *orderedmap.Map[string, *TemplateDirectory] `json:"-"`
 
 	// Templates in the directory
-	Templates *orderedmap.Map[string, *Template] `json:"templates"`
+	Templates *orderedmap.Map[string, *Template] `json:"-"`
 }
 
 // NewTemplateDirectory creates a new template directory
@@ -174,6 +174,15 @@ func (d *TemplateDirectory) Traverse(fn func(*TemplateDirectory) (o Object, next
 	}
 
 	return nil, false
+}
+
+func (d *TemplateDirectory) FlatList() []Object {
+	var list = make([]Object, 0)
+	d.ForEach(func(o Object) bool {
+		list = append(list, o)
+		return true
+	})
+	return list
 }
 
 // Walk walks the directory tree
