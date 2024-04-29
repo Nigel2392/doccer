@@ -40,13 +40,13 @@ func init() {
 	hooks.Register(
 		"construct_menu", -1,
 		func(d *Doccer, m *Menu) {
-			var projectRootItem = &MenuItem{
+			var projectRootItem = MenuItem{
 				Name:      d.config.Project.Name,
 				URL:       d.config.Server.BaseURL,
 				Classname: "navbar-title",
 			}
 
-			m.Items = append([]*MenuItem{projectRootItem}, m.Items...)
+			m.Items = append([]MenuItem{projectRootItem}, m.Items...)
 		},
 	)
 	hooks.Register(

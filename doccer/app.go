@@ -25,10 +25,11 @@ import (
 )
 
 const DOCCER_DIR = ".doccer"
+const MAX_MENU_ITEMS_DEPTH = 1
 
 // FooterMenu represents the footer menu
 var FooterMenu = &Menu{
-	Items: []*MenuItem{
+	Items: []MenuItem{
 		{Name: "View Doccer on GitHub", URL: "https://github.com/Nigel2392/doccer"},
 	},
 }
@@ -88,7 +89,7 @@ func (d *Doccer) Load() error {
 // GetMenu returns the menu for the documentation
 func (d *Doccer) BuildMenu(isServing bool) *Menu {
 	var menu = &Menu{
-		Items: make([]*MenuItem, 0),
+		Items: make([]MenuItem, 0),
 	}
 
 	if d.config.Menu != nil && len(d.config.Menu.Items) > 0 {
@@ -101,7 +102,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 
 	if len(d.config.Menu.Items) == 0 {
 		d.config.RootDirectory.Subdirectories.ForEach(func(key string, v *filesystem.TemplateDirectory) bool {
-			menu.Items = append(menu.Items, &MenuItem{
+			menu.Items = append(menu.Items, MenuItem{
 				Name: v.GetTitle(),
 				URL:  ObjectURL(d.config.Server.BaseURL, v, isServing),
 			})
@@ -109,7 +110,7 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 		})
 
 		d.config.RootDirectory.Templates.ForEach(func(key string, v *filesystem.Template) bool {
-			menu.Items = append(menu.Items, &MenuItem{
+			menu.Items = append(menu.Items, MenuItem{
 				Name: v.GetTitle(),
 				URL:  ObjectURL(d.config.Server.BaseURL, v, isServing),
 			})
@@ -127,11 +128,23 @@ func (d *Doccer) BuildMenu(isServing bool) *Menu {
 
 func (d *Doccer) buildMenu(m *Menu, dir *filesystem.TemplateDirectory, isServing bool) *Menu {
 	var menu = &Menu{
-		Items: make([]*MenuItem, 0),
+		Items: make([]MenuItem, 0),
 	}
 
 	menu.Logo = m.Logo
-	for i, item := range m.Items {
+	menu.Items = d.buildMenuItems(m.Items, dir, isServing, 0)
+
+	var h = hooks.Get[ConstructMenuHook]("construct_menu")
+	for _, hook := range h {
+		hook(d, menu)
+	}
+
+	return menu
+}
+
+func (d *Doccer) buildMenuItems(m []MenuItem, dir *filesystem.TemplateDirectory, isServing bool, depth int) []MenuItem {
+	var items = make([]MenuItem, 0)
+	for i, item := range m {
 		var parts = strings.Split(item.URL, "/")
 		if len(parts) == 1 && parts[0] == "" {
 			parts = []string{}
@@ -162,18 +175,21 @@ func (d *Doccer) buildMenu(m *Menu, dir *filesystem.TemplateDirectory, isServing
 			raise(fmt.Sprintf("menu item %d has no URL: %s", i, item.Name))
 		}
 
-		menu.Items = append(menu.Items, &MenuItem{
-			Name: item.Name,
-			URL:  url,
+		if len(item.Items) > 0 {
+			if depth > MAX_MENU_ITEMS_DEPTH {
+				raise(fmt.Sprintf("menu item %s has too many levels: %d > %d", item.Name, i, MAX_MENU_ITEMS_DEPTH))
+			}
+			item.Items = d.buildMenuItems(item.Items, dir, isServing, depth+1)
+		}
+
+		items = append(items, MenuItem{
+			Name:  item.Name,
+			URL:   url,
+			Items: item.Items,
 		})
 	}
 
-	var h = hooks.Get[ConstructMenuHook]("construct_menu")
-	for _, hook := range h {
-		hook(d, menu)
-	}
-
-	return menu
+	return items
 }
 
 // GetContext returns the context for the documentation

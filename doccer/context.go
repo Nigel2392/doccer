@@ -13,12 +13,13 @@ type MenuItem struct {
 	URL        string            `yaml:"path"`
 	Classname  string            `yaml:"classname"`
 	Attributes map[string]string `yaml:"attributes"`
+	Items      []MenuItem        `yaml:"items"`
 }
 
 // Menu represents a menu
 type Menu struct {
-	Logo  string      `yaml:"logo"`
-	Items []*MenuItem `yaml:"items"`
+	Logo  string     `yaml:"logo"`
+	Items []MenuItem `yaml:"items"`
 }
 
 func makeContextObject(object filesystem.Object, context *Context) filesystem.Object {
