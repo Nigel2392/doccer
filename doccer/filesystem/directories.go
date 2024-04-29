@@ -14,16 +14,16 @@ import (
 // TemplateDirectory represents a directory of documentation templates
 // This is used to generate a tree- like structure for documentation templates.
 type TemplateDirectory struct {
-	FSBase
+	FSBase `json:",inline"`
 
 	// Index template
-	Index *Template
+	Index *Template `json:"index"`
 
 	// Subdirectories
 	Subdirectories *orderedmap.Map[string, *TemplateDirectory]
 
 	// Templates in the directory
-	Templates *orderedmap.Map[string, *Template]
+	Templates *orderedmap.Map[string, *Template] `json:"templates"`
 }
 
 // NewTemplateDirectory creates a new template directory

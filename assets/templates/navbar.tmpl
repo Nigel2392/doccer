@@ -17,15 +17,9 @@
                 {{ end }}
             </a>
         </div>
-        <ul class="navbar-menu">
-            {{ range $menuItem := .Menu.Items }}
-                <li>
-                    <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}">
-                        {{ $menuItem.Name }}
-                    </a>
-                </li>
-            {{ end }}
-        </ul>
+        
+        {{ RenderHook . "render_navbar_content" }}
+
         <ul class="navbar-menu navbar-footer">
             <li>
                 <span class="navbar-item navbar-item-small">

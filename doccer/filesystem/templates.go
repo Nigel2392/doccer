@@ -11,13 +11,13 @@ import (
 // Template represents a documentation template
 type Template struct {
 	// Base filesystem object
-	FSBase
+	FSBase `json:",inline"`
 
 	// Template configuration
-	Config
+	Config `json:",inline"`
 
 	// Template content
-	Content []byte
+	Content []byte `json:"content"`
 }
 
 // Format the template for %v

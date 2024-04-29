@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Nigel2392/doccer/doccer/filesystem"
+	"github.com/Nigel2392/doccer/doccer/hooks"
 )
 
 type (
@@ -96,9 +97,13 @@ func (c *Config) Init() error {
 		"templates/navbar.tmpl",
 		"templates/main.tmpl",
 		"templates/head.tmpl",
-		"templates/base.tmpl",
-		// assetFile(c.Template),
 	}
+
+	for _, hook := range hooks.Get[RegisterTemplateHook]("register_config_templates") {
+		files = append(files, hook(c.Instance))
+	}
+
+	files = append(files, "templates/base.tmpl")
 
 	// Create the template
 	var tpl = template.New("base")

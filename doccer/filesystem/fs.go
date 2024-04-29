@@ -31,25 +31,25 @@ type Object interface {
 
 type FSBase struct {
 	// Absolute directory path
-	Path string
+	Path string `json:"path"`
 
 	// Documentation root directory
-	Root string
+	Root string `json:"root"`
 
 	// Output directory
-	Output string
+	Output string `json:"output"`
 
 	// Relative output directory path
-	Relative string
+	Relative string `json:"relative"`
 
 	// Directory name
-	Name string
+	Name string `json:"name"`
 
 	// Depth in the directory tree
-	Depth int
+	Depth int `json:"depth"`
 
 	// The root directory, nil if it is the root
-	RootDirectory *TemplateDirectory
+	RootDirectory *TemplateDirectory `json:"-"`
 }
 
 type Config struct {

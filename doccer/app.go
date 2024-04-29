@@ -2,6 +2,7 @@ package doccer
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -200,6 +201,29 @@ func (d *Doccer) GetContext(isServing bool) *Context {
 
 func (d *Doccer) TemplateFuncs() template.FuncMap {
 	return template.FuncMap{
+		"JSON": func(v interface{}) template.HTML {
+			var b, err = json.Marshal(v)
+			if err != nil {
+				return template.HTML(fmt.Sprintf("Error: %s", err))
+			}
+			return template.HTML(b)
+		},
+		"json_script": func(v interface{}, elementId string) template.HTML {
+			var b, err = json.Marshal(v)
+			if err != nil {
+				return template.HTML(fmt.Sprintf("Error: %s", err))
+			}
+			return template.HTML(fmt.Sprintf("<script id=\"%s\" type=\"application/json\">%s</script>", elementId, b))
+		},
+		"RenderHook": func(c *Context, hook string) template.HTML {
+			var h = hooks.Get[RendererHook](hook)
+			var html = make([]string, 0)
+			for _, hook := range h {
+				var renderer = hook(c)
+				html = append(html, renderer.Render(c))
+			}
+			return template.HTML(strings.Join(html, "\n"))
+		},
 		"Env": func(key string) string {
 			return os.Getenv(key)
 		},
