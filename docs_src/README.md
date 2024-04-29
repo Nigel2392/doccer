@@ -1,7 +1,9 @@
 // Title: Doccer DocGen
 // Next: configuration.md
 
-![Doccer]({{ Asset "static/logo.svg" }})
+<center>
+    <img src="{{ Asset "static/logo.svg" }}" alt="Doccer">
+</center>
 
 {{ MarkdownIcon "terminal" "" }} {{ .Config.Project.Name }}
 =======================

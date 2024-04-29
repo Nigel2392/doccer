@@ -19,6 +19,10 @@
         *, *:before, *:after {
             box-sizing: border-box;
         }
+        p:has(img:only-child) {
+            display: block;
+            margin: 0 auto;
+        }
         img {
             max-width: 100%;
             height: auto;
@@ -151,7 +155,6 @@
         }
         .main-content-lint > * {
             width: 30%;
-            flex: 1;
         }
         .main-content-lint > *:last-child {
             justify-content: flex-end;
@@ -216,7 +219,12 @@
             padding-top: 10px;
             padding-bottom: 10px;
             padding-left: 20px;
-            width: 90%;
+            margin: 0 auto;
+            max-width: min(1100px, calc(100% - 60px));
+        }
+        .main-content img {
+            max-height: 350px;
+            margin: 0 auto;
         }
         .main-content svg {
             vertical-align: middle;
@@ -307,7 +315,7 @@
             <input class="navbar-search-input" type="text" placeholder="Search..." />
         </li>
     </ul>
-    <script id="root_data" type="application/base64">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</script>
+    <script id="root_data" type="application/base64">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</script>
     <script src="https://cdn.jsdelivr.net/npm/minisearch@6.3.0/dist/umd/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
@@ -476,7 +484,9 @@
             </div>
         </div>
         <div class="main-content">
-            <p><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/logo.svg?raw=true" alt="Doccer" /></p>
+            <center>
+    <img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/logo.svg?raw=true" alt="Doccer">
+</center>
 <h1 id="httpsgithubcomnigel2392doccerblobmainassetsstaticbootstrap-iconsterminalsvgrawtrue-getting-started"><img src="https://github.com/Nigel2392/doccer/blob/main/assets/static/bootstrap-icons/terminal.svg?raw=true" alt="" /> Getting Started</h1>
 <p>A simple documentation generator for your project.</p>
 <p>Easily build static HTML pages from your markdown files.</p>

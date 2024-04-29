@@ -15,6 +15,10 @@
         *, *:before, *:after {
             box-sizing: border-box;
         }
+        p:has(img:only-child) {
+            display: block;
+            margin: 0 auto;
+        }
         img {
             max-width: 100%;
             height: auto;
@@ -147,7 +151,6 @@
         }
         .main-content-lint > * {
             width: 30%;
-            flex: 1;
         }
         .main-content-lint > *:last-child {
             justify-content: flex-end;
@@ -212,7 +215,12 @@
             padding-top: 10px;
             padding-bottom: 10px;
             padding-left: 20px;
-            width: 90%;
+            margin: 0 auto;
+            max-width: min(1100px, calc(100% - 60px));
+        }
+        .main-content img {
+            max-height: 350px;
+            margin: 0 auto;
         }
         .main-content svg {
             vertical-align: middle;
