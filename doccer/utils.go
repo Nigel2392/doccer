@@ -92,6 +92,14 @@ func CopyDirectory(fileSys fs.FS, scrDir, dest string) error {
 		)
 
 		if dir.IsDir() {
+			var err = os.MkdirAll(fDstPath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+			err = CopyDirectory(fileSys, fSrcPath, fDstPath)
+			if err != nil {
+				return err
+			}
 			continue
 		}
 

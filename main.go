@@ -31,7 +31,8 @@ func matchCommand(d *doccer.Doccer, command string) (err error) {
 }
 
 //go:embed assets/*
-//go:embed assets/templates/*
+//go:embed assets/templates/*.tmpl
+//go:embed assets/templates/hooks/*.tmpl
 var embedFS embed.FS
 
 func main() {

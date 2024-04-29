@@ -104,6 +104,9 @@ func (d *Config) GetNext() Object {
 	if !ok {
 		return nil
 	}
+	//if d, ok := next.(*TemplateDirectory); ok {
+	//	return d.Index
+	//}
 	return next
 }
 

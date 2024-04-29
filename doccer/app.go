@@ -54,7 +54,7 @@ type Doccer struct {
 	// Config
 	config *Config
 
-	embedFS fs.FS
+	embedFS *DoccerFS
 }
 
 // NewDoccer creates a new doccer instance
@@ -395,14 +395,14 @@ func (d *Doccer) Init() error {
 	}
 
 	// Copy the static files
-	err = CopyDirectory(d.embedFS, "assets/static", filepath.Join(DOCCER_DIR, "static"))
+	err = CopyDirectory(d.embedFS.FS, "assets/static", filepath.Join(DOCCER_DIR, "static"))
 	if err != nil {
 		return err
 	}
 
 	// Copy the templates
 	return CopyDirectory(
-		d.embedFS,
+		d.embedFS.FS,
 		"assets/templates",
 		filepath.Join(DOCCER_DIR, "templates"),
 	)

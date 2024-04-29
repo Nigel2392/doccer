@@ -126,6 +126,15 @@ func (d *TemplateDirectory) GetName() string {
 
 // GetTitle returns the title of the directory
 func (t *TemplateDirectory) GetTitle() string {
+	if t.Index == nil || t.Index.Title == "" {
+		if t.Name == "" {
+			return t.Relative
+		}
+		return t.Name
+	}
+	if t.Index.Title == "" {
+		return t.Name
+	}
 	return t.Index.Title
 }
 
