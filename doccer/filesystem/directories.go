@@ -187,7 +187,7 @@ func (d *TemplateDirectory) Walk(parts []string) (Object, bool) {
 	}
 
 	if len(parts) == 1 && d.Index != nil && parts[0] == d.Index.Name {
-		return d.Index, true
+		return d, true
 	}
 
 	var (

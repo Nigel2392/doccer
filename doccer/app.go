@@ -414,12 +414,13 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 		} else {
 			var tpl = &filesystem.Template{
 				FSBase: filesystem.FSBase{
-					Name:     "index.html",
-					Path:     "index.html",
-					Root:     dir.Root,
-					Output:   "index.html",
-					Relative: "index.html",
-					Depth:    dir.Depth,
+					Name:          "index.html",
+					Path:          "index.html",
+					Root:          dir.Root,
+					Output:        "index.html",
+					Relative:      "index.html",
+					Depth:         dir.Depth,
+					RootDirectory: d.config.RootDirectory,
 				},
 			}
 			tpl.Config = filesystem.NewConfig(
