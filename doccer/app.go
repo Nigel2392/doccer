@@ -226,7 +226,7 @@ func (d *Doccer) TemplateFuncs() template.FuncMap {
 				return template.HTML(fmt.Sprintf("Error: %s", err))
 			}
 			var data = buf.Bytes()
-			return template.HTML(fmt.Sprintf("<script id=\"%s\" type=\"application/json\">%s</script>", elementId, base64.StdEncoding.EncodeToString(data)))
+			return template.HTML(fmt.Sprintf("<script id=\"%s\" type=\"application/base64\">%s</script>", elementId, base64.StdEncoding.EncodeToString(data)))
 		},
 		"RenderHook": func(c *Context, hook string) template.HTML {
 			var h = hooks.Get[RendererHook](hook)
