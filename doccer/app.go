@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -183,9 +184,12 @@ func (d *Doccer) buildMenuItems(m []MenuItem, dir *filesystem.TemplateDirectory,
 		}
 
 		items = append(items, MenuItem{
-			Name:  item.Name,
-			URL:   url,
-			Items: item.Items,
+			Name:       item.Name,
+			URL:        url,
+			Items:      item.Items,
+			Icon:       item.Icon,
+			Classname:  item.Classname,
+			Attributes: item.Attributes,
 		})
 	}
 
@@ -216,6 +220,9 @@ func (d *Doccer) GetContext(isServing bool) *Context {
 
 	return context
 }
+
+var WidthRegex, _ = regexp.Compile(`width="([a-zA-Z0-9]+)"`)
+var HeightRegex, _ = regexp.Compile(`height="([a-zA-Z0-9]+)"`)
 
 func (d *Doccer) TemplateFuncs() template.FuncMap {
 	return template.FuncMap{
@@ -261,6 +268,39 @@ func (d *Doccer) TemplateFuncs() template.FuncMap {
 		},
 		"GetTime": func() time.Time {
 			return time.Now()
+		},
+		"Icon": func(name string, sizing ...string) template.HTML {
+			if name == "" {
+				return template.HTML("")
+			}
+			var w, h string
+			if len(sizing) == 1 {
+				var wh = strings.Split(sizing[0], "x")
+				if len(wh) == 2 {
+					w = wh[0]
+					h = wh[1]
+				} else {
+					w = sizing[0]
+					h = sizing[0]
+				}
+			} else if len(sizing) > 1 {
+				return template.HTML(fmt.Sprintf("Error: Icon sizing has too many arguments: %v", sizing))
+			} else {
+				w = "24"
+				h = "24"
+			}
+
+			var svgPath = fmt.Sprintf("static/bootstrap-icons/%s.svg", name)
+			var svg, err = fs.ReadFile(d.embedFS, svgPath)
+			if err != nil {
+				return template.HTML(fmt.Sprintf("Error rendering SVG: %s", err))
+			}
+
+			var svgStr = string(svg)
+			svgStr = WidthRegex.ReplaceAllString(svgStr, fmt.Sprintf(`width="%s"`, w))
+			svgStr = HeightRegex.ReplaceAllString(svgStr, fmt.Sprintf(`height="%s"`, h))
+
+			return template.HTML(svgStr)
 		},
 		"Asset": func(name string) template.HTML {
 

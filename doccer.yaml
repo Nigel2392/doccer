@@ -13,9 +13,14 @@ server:
 
 menu:
   items:
+    - name: "Getting Started"
+      icon: "question-circle"
+      path: "README.md"
     - name: "Configuration"
+      icon: "gear"
       path: "configuration.md"
     - name: "Templates"
+      icon: "filetype-md"
       path: "templates.md"
 
 context:

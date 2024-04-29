@@ -100,13 +100,20 @@
             list-style-type: none;
         }
         .navbar-menu li .navbar-item {
-            display: block;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
             padding: 10px 20px;
             color: #fff;
             text-decoration: none;
+            vertical-align: middle;
         }
         .navbar-menu li a.navbar-item:hover {
             background-color: #555;
+        }
+        .navbar-menu li .navbar-item svg {
+            vertical-align: middle;
+            margin-right: 5px;
         }
         .navbar-menu li .navbar-item-small {
             padding: 5px 20px;
@@ -163,15 +170,29 @@
         }
         .pagination__link:first-child {
             text-align: left;
+            justify-content: flex-start;
+        }
+        .pagination__link:first-child svg {
+            margin-right: 5px;
         }
         .pagination__link:last-child {
             text-align: right;
+            justify-content: flex-end;
+        }
+        .pagination__link:last-child svg {
+            margin-left: 5px;
         }
         .pagination__link {
             text-decoration: none;
             color: #333;
             border-radius: 5px;
             text-wrap: nowrap;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .pagination__link svg {
+            vertical-align: middle;
         }
         .pagination__link,
         .pagination__placeholder {

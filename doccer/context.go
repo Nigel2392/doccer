@@ -12,8 +12,24 @@ type MenuItem struct {
 	Name       string            `yaml:"name"`
 	URL        string            `yaml:"path"`
 	Classname  string            `yaml:"classname"`
+	Icon       string            `yaml:"icon"`
 	Attributes map[string]string `yaml:"attributes"`
 	Items      []MenuItem        `yaml:"items"`
+}
+
+func (m MenuItem) Copy() MenuItem {
+	var items = make([]MenuItem, len(m.Items))
+	for i, item := range m.Items {
+		items[i] = item.Copy()
+	}
+	return MenuItem{
+		Name:       m.Name,
+		URL:        m.URL,
+		Classname:  m.Classname,
+		Icon:       m.Icon,
+		Attributes: m.Attributes,
+		Items:      items,
+	}
 }
 
 // Menu represents a menu

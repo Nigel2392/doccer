@@ -5,6 +5,7 @@
                 {{ if (gt (len $menuItem.Items) 0) }}
                     <div class="navbar-dropdown-button">
                         <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
+                            {{ Icon $menuItem.Icon }}
                             {{ $menuItem.Name }}
                         </a>
                     </div>
@@ -12,6 +13,7 @@
                         {{ range $subItem := $menuItem.Items }}
                             <li>
                                 <a href="{{ $subItem.URL }}" class="navbar-item {{ $subItem.Classname }}" {{ if $subItem.Attributes }}{{ range $key, $value := $subItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
+                                    {{ Icon $subItem.Icon }}
                                     {{ $subItem.Name }}
                                 </a>
                             </li>
@@ -19,6 +21,7 @@
                     </ul>
                 {{ else }}
                     <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
+                        {{ Icon $menuItem.Icon }}
                         {{ $menuItem.Name }}
                     </a>
                 {{ end }}
