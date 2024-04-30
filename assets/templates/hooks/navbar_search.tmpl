@@ -34,7 +34,22 @@
             outline: none;
             height: 40px;
         }
-
+        @media screen and (min-width: 576px) {
+            #navbar .navbar-search-menu {
+                display: none;
+            }
+            #navbar.open .navbar-search-menu {
+                display: flex;
+            }
+        }
+        @media screen and (min-width: 1200px) {
+            #navbar .navbar-search-menu {
+                display: flex;
+            }
+            #navbar .navbar-search-input {
+                display: inline-block;
+            }
+        }
     </style>
     <ul class="navbar-search-menu" id="navbar-search">
         <li class="navbar-search-wrapper">

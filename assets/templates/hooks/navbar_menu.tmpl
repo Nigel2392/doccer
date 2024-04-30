@@ -5,24 +5,28 @@
                 {{ if (gt (len $menuItem.Items) 0) }}
                     <div class="navbar-dropdown-button">
                         <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
-                            {{ Icon $menuItem.Icon }}
-                            {{ $menuItem.Name }}
+                            <span class="navbar-item-icon">{{ Icon $menuItem.Icon }}</span>
+                            <span class="navbar-item-text">{{ $menuItem.Name }}</span>
                         </a>
                     </div>
                     <ul class="navbar-dropdown">
                         {{ range $subItem := $menuItem.Items }}
                             <li>
                                 <a href="{{ $subItem.URL }}" class="navbar-item {{ $subItem.Classname }}" {{ if $subItem.Attributes }}{{ range $key, $value := $subItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
-                                    {{ Icon $subItem.Icon }}
-                                    {{ $subItem.Name }}
+                                    <span class="navbar-item-icon">{{ Icon $subItem.Icon }}</span>
+                                    <span class="navbar-item-text">{{ $subItem.Name }}</span>
                                 </a>
                             </li>
                         {{ end }}
                     </ul>
                 {{ else }}
                     <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
-                        {{ Icon $menuItem.Icon }}
-                        {{ $menuItem.Name }}
+                        <span class="navbar-item-icon">
+                            {{ Icon $menuItem.Icon }}
+                        </span>
+                        <span class="navbar-item-text">
+                            {{ $menuItem.Name }}
+                        </span>
                     </a>
                 {{ end }}
             </li>

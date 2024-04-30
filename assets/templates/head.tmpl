@@ -23,19 +23,6 @@
             max-width: 100%;
             height: auto;
         }
-        nav {
-            width: 250px;
-            position: fixed;
-            height: 100%;
-            overflow: auto;
-            padding: 0;
-            margin: 0;
-        }
-        main {
-            margin: 0;
-            margin-left: 250px;
-            width: calc(100% - 250px);
-        }
         main h1, main h2, main h3, main h4, main h5, main h6, main ol, main ul {
             margin: 0;
             font-size: var(--font-size, 1em);
@@ -60,6 +47,11 @@
         }
         h6 {
             --font-size: 0.8rem;
+        }
+        #navbar {
+            padding: 0;
+            margin: 0;
+            z-index: 10;
         }
         main > * {
             width: 100%;
@@ -107,24 +99,61 @@
         .navbar-menu li {
             list-style-type: none;
         }
-        .navbar-menu li .navbar-item {
+        .navbar-item {
             display: flex;
             flex-direction: row;
             align-items: center;
-            padding: 10px 20px;
             color: #fff;
             text-decoration: none;
             vertical-align: middle;
+            justify-content: flex-start;
+            padding: 10px 0;
         }
-        .navbar-menu li a.navbar-item:hover {
+        button.navbar-item {
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            width: 100%;
+        }
+        button.navbar-item:hover,
+        a.navbar-item:hover {
             background-color: #555;
         }
-        .navbar-menu li .navbar-item svg {
+        .navbar-item .navbar-item-icon img,
+        .navbar-item img.navbar-item-icon,
+        .navbar-item .navbar-item-icon svg,
+        .navbar-item svg.navbar-item-icon {
             vertical-align: middle;
+            object-fit: contain;
             margin-right: 5px;
         }
-        .navbar-menu li .navbar-item-small {
-            padding: 5px 20px;
+        .navbar-item img.navbar-item-icon,
+        .navbar-item .navbar-item-icon img {
+            width: 36px;
+            height: 36px;
+        }
+        .navbar-item svg.navbar-item-icon,
+        .navbar-item .navbar-item-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+        .navbar-item .navbar-item-text {
+            vertical-align: middle;
+        }
+        .navbar-item-small {
+            font-size: 0.8em;
+        }
+        .navbar-menu.navbar-opener .navbar-item-text {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .navbar-menu.navbar-opener {
+            display: none;
+        }
+        .navbar-menu.navbar-opener svg {
+            width: 40px;
+            height: 40px;
         }
         .navbar-footer {
             margin-top: auto;
@@ -146,7 +175,7 @@
             background-color: #f4f4f4;
             position: sticky;
             width: 100%;
-            z-index: 1000;
+            z-index: 5;
             top: 0;
         }
         .main-content-lint > * {
@@ -155,6 +184,10 @@
         .main-content-lint > *:last-child {
             justify-content: flex-end;
             text-align: right;
+        }
+        .main-content {
+            padding: 0 1em;
+            margin: 0 auto;
         }
         .object-information {
             text-wrap: nowrap;
@@ -211,13 +244,6 @@
                 order: 3;
             }
         }
-        .main-content {
-            padding-top: 10px;
-            padding-bottom: 10px;
-            padding-left: 20px;
-            margin: 0 auto;
-            max-width: min(1100px, calc(100% - 60px));
-        }
         .main-content img {
             max-height: 350px;
             margin: 0 auto;
@@ -241,6 +267,115 @@
         }
         .documentation-link svg {
             vertical-align: middle;
+        }
+        @media screen and (max-width: 576px) {
+            #navbar .navbar-item {
+                padding: 10px 20px;
+            }
+        }
+        @media screen and (min-width: 576px) {
+            #navbar {
+                width: 50px;
+                position: fixed;
+                height: 100%;
+                overflow: auto;
+            }
+            #navbar .navbar-logo {
+                display: none;
+            }
+            #navbar.open .navbar-logo {
+                display: block;
+            }
+            main {
+                margin: 0;
+                margin-left: 50px;
+                width: calc(100% - 50px);
+            }
+            .main-content {
+                margin: 0 auto;
+                padding: 10px 2.5em;
+            }
+            .navbar-menu.navbar-opener {
+                display: flex;
+            }
+            .navbar-item-text {
+                display: none;
+            }
+            #navbar.open {
+                width: 250px;
+            }
+            #navbar .navbar-item {
+                justify-content: center;
+            }
+            #navbar.open .navbar-item {
+                justify-content: flex-start;
+                padding: 10px 20px;
+            }
+            #navbar.open .navbar-item-small {
+                padding: 5px 20px;
+            }
+            .navbar-item .navbar-item-icon img,
+            .navbar-item img.navbar-item-icon,
+            .navbar-item .navbar-item-icon svg,
+            .navbar-item svg.navbar-item-icon {
+                margin-right: 0;
+            }
+            #navbar.open .navbar-item .navbar-item-icon img,
+            #navbar.open .navbar-item img.navbar-item-icon,
+            #navbar.open .navbar-item .navbar-item-icon svg,
+            #navbar.open .navbar-item svg.navbar-item-icon {
+                margin-right: 5px;
+            }
+            #navbar.open .navbar-item-text {
+                display: inline-block;
+            }
+
+            #navbar.open .navbar-item-open {
+                display: none;
+            }
+            #navbar:not(.open) .navbar-item-close {
+                display: none;
+            }
+        }
+        @media screen and (min-width: 1200px) {
+            #navbar {
+                width: 250px;
+                position: fixed;
+                height: 100%;
+                overflow: auto;
+                padding: 0;
+                margin: 0;
+            }
+            #navbar .navbar-logo {
+                display: block;
+            }
+            main {
+                margin: 0;
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+            .main-content {
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 20px;
+                max-width: min(1100px, calc(100% - 60px));
+            }
+            #navbar .navbar-item {
+                padding: 10px 20px;
+                justify-content: flex-start;
+            }
+            #navbar .navbar-item-small {
+                padding: 5px 20px;
+            }
+            #navbar .navbar-item .navbar-item-icon {
+                margin-right: 5px;
+            }
+            #navbar .navbar-item .navbar-item-text {
+                display: inline-block;
+            }
+            #navbar .navbar-menu.navbar-opener {
+                display: none;
+            }
         }
     </style>
     <link rel="icon" type="image/png" href="{{ Asset "static/favicon.png" }}">

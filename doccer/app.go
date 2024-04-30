@@ -438,6 +438,15 @@ func (d *Doccer) Init() error {
 
 	if createConfig {
 		var c = NewConfig(d)
+
+		var h = hooks.Get[LoadHook]("init_new_config")
+		for _, hook := range h {
+			err = hook(d, c)
+			if err != nil {
+				return err
+			}
+		}
+
 		var b, err = yaml.Marshal(c)
 		if err != nil {
 			return err

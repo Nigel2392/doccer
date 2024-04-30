@@ -10,7 +10,10 @@ import (
 	"github.com/Nigel2392/doccer/doccer"
 )
 
-func matchCommand(d *doccer.Doccer, command string) (err error) {
+func matchCommand(d *doccer.Doccer, command string, args []string) (err error) {
+
+	// Parse the arguments for the command
+
 	// Execute the command
 	switch strings.ToLower(command) {
 	case "build":
@@ -51,7 +54,7 @@ func main() {
 	}
 
 	var command = os.Args[1]
-	err = matchCommand(d, command)
+	err = matchCommand(d, command, os.Args[2:])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
