@@ -83,7 +83,7 @@
             color: #fff;
         }
         .navbar-logo {
-            padding: 10px 20px;
+            padding: 10px;
         }
         .navbar-title {
             font-size: 1.5em;
@@ -180,7 +180,7 @@
             top: 0;
         }
         .main-content-lint > * {
-            width: 30%;
+            width: 50%;
             min-width: 150px;
         }
         .main-content-lint > *:last-child {
@@ -272,7 +272,7 @@
         }
         @media screen and (max-width: 320px) {
             #navbar .navbar-item {
-                padding: 10px 20px;
+                padding: 10px;
             }
         }
         @media screen and (min-width: 320px) {
@@ -303,6 +303,13 @@
             .navbar-item-text {
                 display: none;
             }
+            #navbar .navbar-dropdown {
+                margin: 0;
+                padding: 0;
+            }
+            /* #navbar.open .navbar-dropdown { */
+                /* padding-inline-start: 1em; */
+            /* } */
             #navbar.open {
                 width: 250px;
             }
@@ -311,10 +318,10 @@
             }
             #navbar.open .navbar-item {
                 justify-content: flex-start;
-                padding: 10px 20px;
+                padding: 10px;
             }
             #navbar.open .navbar-item-small {
-                padding: 5px 20px;
+                padding: 5px 10px;
             }
             .navbar-item .navbar-item-icon img,
             .navbar-item img.navbar-item-icon,
@@ -378,13 +385,21 @@
                 max-width: min(1100px, calc(100% - 60px));
             }
             #navbar .navbar-item {
-                padding: 10px 20px;
+                padding: 10px;
                 justify-content: flex-start;
             }
+            /* #navbar .navbar-dropdown .navbar-item { */
+                /* padding-inline-start: calc(1em + 10px); */
+            /* } */
             #navbar .navbar-item-small {
-                padding: 5px 20px;
+                padding: 5px 10px;
             }
-            #navbar .navbar-item .navbar-item-icon {
+            #navbar .navbar-item .navbar-item-icon img,
+            #navbar .navbar-item img.navbar-item-icon,
+            #navbar .navbar-item .navbar-item-icon svg,
+            #navbar .navbar-item svg.navbar-item-icon {
+                vertical-align: middle;
+                object-fit: contain;
                 margin-right: 5px;
             }
             #navbar .navbar-item .navbar-item-text {
