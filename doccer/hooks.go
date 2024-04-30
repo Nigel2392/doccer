@@ -22,12 +22,16 @@ type (
 	ParseArgHook         func(d *Doccer, fs *flag.FlagSet) ParseFlagFn
 )
 
-type TemplatePath string // TemplatePath represents a path to a template
+type TemplatePaths []string // TemplatePath represents a path to a template
 
-func (t TemplatePath) Render(c *Context) string {
+func TemplatePath(paths ...string) TemplatePaths {
+	return paths
+}
+
+func (t TemplatePaths) Render(c *Context) string {
 	var tpl = template.New("feature_template")
 	tpl.Funcs(c.Config.Instance.TemplateFuncs())
-	tpl, err := tpl.ParseFS(c.Config.Instance.embedFS, string(t))
+	tpl, err := tpl.ParseFS(c.Config.Instance.embedFS, t...)
 	if err != nil {
 		fmt.Println(err)
 		return ""
@@ -57,6 +61,7 @@ func init() {
 		func(c *Context) Renderer {
 			return TemplatePath(
 				"templates/hooks/navbar_menu.tmpl",
+				"templates/hooks/navbar_menu_item.tmpl",
 			)
 		},
 	)

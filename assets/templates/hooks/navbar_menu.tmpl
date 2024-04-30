@@ -4,30 +4,17 @@
             <li>
                 {{ if (gt (len $menuItem.Items) 0) }}
                     <div class="navbar-dropdown-button">
-                        <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
-                            <span class="navbar-item-icon">{{ Icon $menuItem.Icon }}</span>
-                            <span class="navbar-item-text">{{ $menuItem.Name }}</span>
-                        </a>
+                        {{ template "menu_item" $menuItem }}
                     </div>
                     <ul class="navbar-dropdown">
                         {{ range $subItem := $menuItem.Items }}
                             <li>
-                                <a href="{{ $subItem.URL }}" class="navbar-item {{ $subItem.Classname }}" {{ if $subItem.Attributes }}{{ range $key, $value := $subItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
-                                    <span class="navbar-item-icon">{{ Icon $subItem.Icon }}</span>
-                                    <span class="navbar-item-text">{{ $subItem.Name }}</span>
-                                </a>
+                                {{ template "menu_item" $subItem }}
                             </li>
                         {{ end }}
                     </ul>
                 {{ else }}
-                    <a href="{{ $menuItem.URL }}" class="navbar-item {{ $menuItem.Classname }}" {{ if $menuItem.Attributes }}{{ range $key, $value := $menuItem.Attributes }}{{ $key }}="{{ html $value }}"{{ end }}{{ end }}>
-                        <span class="navbar-item-icon">
-                            {{ Icon $menuItem.Icon }}
-                        </span>
-                        <span class="navbar-item-text">
-                            {{ $menuItem.Name }}
-                        </span>
-                    </a>
+                    {{ template "menu_item" $menuItem }}
                 {{ end }}
             </li>
         {{ end }}

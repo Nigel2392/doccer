@@ -17,6 +17,13 @@ type MenuItem struct {
 	Items      []MenuItem        `yaml:"items"`
 }
 
+func (m MenuItem) PreviewLetter() string {
+	if len(m.Name) > 0 {
+		return m.Name[:1]
+	}
+	return "?"
+}
+
 func (m MenuItem) Copy() MenuItem {
 	var items = make([]MenuItem, len(m.Items))
 	for i, item := range m.Items {
