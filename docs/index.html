@@ -173,10 +173,11 @@
             padding: 4px 10px;
             margin-bottom: 10px;
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             flex-direction: row;
             justify-content: space-between;
             background-color: #f4f4f4;
+            overflow: hidden;
             position: sticky;
             width: 100%;
             z-index: 5;
@@ -184,6 +185,7 @@
         }
         .main-content-lint > * {
             width: 30%;
+            min-width: 150px;
         }
         .main-content-lint > *:last-child {
             justify-content: flex-end;
@@ -201,52 +203,6 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-        }
-        .pagination {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            justify-content: space-evenly;
-            align-items: center;
-            width: 40%;
-            flex: 1;
-            gap: 10px;
-        }
-        .pagination__link:first-child {
-            text-align: left;
-            justify-content: flex-start;
-        }
-        .pagination__link:first-child svg {
-            margin-right: 5px;
-        }
-        .pagination__link:last-child {
-            text-align: right;
-            justify-content: flex-end;
-        }
-        .pagination__link:last-child svg {
-            margin-left: 5px;
-        }
-        .pagination__link {
-            text-decoration: none;
-            color: #333;
-            border-radius: 5px;
-            text-wrap: nowrap;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-        .pagination__link svg {
-            vertical-align: middle;
-        }
-        .pagination__link,
-        .pagination__placeholder {
-            flex: 1;
-            text-align: center;
-        }
-        @media screen and (max-width: 768px) {
-            .pagination {
-                order: 3;
-            }
         }
         .main-content img {
             max-height: 350px;
@@ -272,12 +228,58 @@
         .documentation-link svg {
             vertical-align: middle;
         }
-        @media screen and (max-width: 576px) {
+        .pagination {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            align-items: center;
+            margin-bottom: 3em;
+            flex: 1;
+        }
+        .pagination__link:first-child {
+            text-align: left;
+            justify-content: flex-start;
+        }
+        .pagination__link:first-child svg {
+            margin-right: 5px;
+        }
+        .pagination__link:last-child {
+            text-align: right;
+            justify-content: flex-end;
+        }
+        .pagination__link:last-child svg {
+            margin-left: 5px;
+        }
+        .pagination__link {
+            text-underline-offset: 5px;
+            color: #333;
+            border-radius: 5px;
+            text-wrap: nowrap;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .pagination__link svg {
+            vertical-align: middle;
+        }
+        .pagination__link,
+        .pagination__placeholder {
+            flex: 1;
+            text-align: center;
+        }
+        .pagination__link .pagination__link-text {
+            display: none;
+        }
+        .pagination__link svg {
+            transform: scale(1.5);
+        }
+        @media screen and (max-width: 320px) {
             #navbar .navbar-item {
                 padding: 10px 20px;
             }
         }
-        @media screen and (min-width: 576px) {
+        @media screen and (min-width: 320px) {
             #navbar {
                 width: 50px;
                 position: fixed;
@@ -297,7 +299,7 @@
             }
             .main-content {
                 margin: 0 auto;
-                padding: 10px 2.5em;
+                padding: 10px 1em;
             }
             .navbar-menu.navbar-opener {
                 display: flex;
@@ -339,6 +341,21 @@
             }
             #navbar:not(.open) .navbar-item-close {
                 display: none;
+            }
+        }
+        @media screen and (min-width: 768px) {
+            .main-content {
+                margin: 0 auto;
+                padding: 10px 2.5em;
+            }
+            .pagination__link .pagination__link-text {
+                display: inline-block;
+            }
+            .pagination__link:first-child .pagination__link-text {
+                content: "Previous";
+            }
+            .pagination__link svg {
+                transform: scale(1);
             }
         }
         @media screen and (min-width: 1200px) {
@@ -458,7 +475,7 @@
             outline: none;
             height: 40px;
         }
-        @media screen and (min-width: 576px) {
+        @media screen and (min-width: 320px) {
             #navbar .navbar-search-menu {
                 display: none;
             }
@@ -652,23 +669,6 @@
             <div class="object-information">
                 <span class="object-information__title">README.md</span>
             </div>
-            
-            
-            
-                <div class="pagination">
-                    
-                        <span class="pagination__placeholder"></span>
-                    
-                    
-                        <a href="/doccer/configuration.html" class="pagination__link pagination__link--next">
-                            Configuring Doccer 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/>
-</svg>
-                        </a>
-                    
-                </div>
-            
             <div class="documentation-links">
                 
                     <a href="https://github.com/Nigel2392/doccer" class="documentation-link" target="_blank">
@@ -694,6 +694,23 @@
 </span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>doccer serve <span style="color:#75715e"># Serve the documentation with a local server.</span>
 </span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>doccer build <span style="color:#75715e"># Build the documentation.</span>
 </span></span></code></pre>
+            
+            
+            
+                <div class="pagination">
+                    
+                        <span class="pagination__placeholder"></span>
+                    
+                    
+                        <a href="/doccer/configuration.html" class="pagination__link pagination__link--next">
+                            <span class="pagination__link-text">Configuring Doccer</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/>
+</svg>
+                        </a>
+                    
+                </div>
+            
         </div>
     </main>
 
