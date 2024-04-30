@@ -6,12 +6,38 @@ import (
 	"errors"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/Nigel2392/doccer/doccer/hooks"
 )
 
 var (
 	// ErrNoTemplates is returned when there are no templates in a directory
 	ErrNoTemplates = errors.New("no templates found in directory")
+
+	// ErrFileExists is returned when a file or directory being added to the tree already exists
+	ErrFileExists = errors.New("file or directory already exists")
 )
+
+type (
+	TextFileHookFunc func(name string, content []byte) bool
+)
+
+func isValidUTF8(data []byte) bool {
+	fileScanner := bufio.NewScanner(
+		bytes.NewReader(data),
+	)
+	fileScanner.Split(bufio.ScanLines)
+	fileScanner.Scan()
+	return utf8.ValidString(fileScanner.Text())
+}
+
+func init() {
+
+	// Check if the file is a text file by checking if the first line is a valid utf8 string
+	hooks.Register("is_text_file", 100, func(name string, content []byte) bool {
+		return isValidUTF8(content)
+	})
+}
 
 // isIndexFile returns true if the file is an index file
 func IsIndexFile(name string) bool {
@@ -20,13 +46,14 @@ func IsIndexFile(name string) bool {
 }
 
 // isTextFile returns true if the file is a text file
-func isTextFile(content []byte) bool {
-	fileScanner := bufio.NewScanner(
-		bytes.NewReader(content),
-	)
-	fileScanner.Split(bufio.ScanLines)
-	fileScanner.Scan()
-	return utf8.ValidString(fileScanner.Text())
+func isTextFile(name string, content []byte) bool {
+	var h = hooks.Get[TextFileHookFunc]("is_text_file")
+	for _, hook := range h {
+		if !hook(name, content) {
+			return false
+		}
+	}
+	return true
 }
 
 // Object represents a documentation object

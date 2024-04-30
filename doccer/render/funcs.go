@@ -12,11 +12,22 @@ import (
 )
 
 func renderRaw(w io.Writer, content []byte) error {
-	content = append([]byte("<pre>"), content...)
-	content = append(content, []byte("</pre>")...)
 	_, err := w.Write(content)
 	return err
 }
+
+//	func renderPre(w io.Writer, content []byte) error {
+//		_, err := w.Write([]byte("<pre>"))
+//		if err != nil {
+//			return err
+//		}
+//		_, err = w.Write(content)
+//		if err != nil {
+//			return err
+//		}
+//		_, err = w.Write([]byte("</pre>"))
+//		return err
+//	}
 
 func renderMarkdown(w io.Writer, content []byte) error {
 	md := goldmark.New(

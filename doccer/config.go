@@ -28,10 +28,11 @@ type (
 	}
 
 	Config struct {
-		Server  ServerConfig           `yaml:"server"`  // Server configuration
-		Project ProjectConfig          `yaml:"project"` // Project configuration
-		Context map[string]interface{} `yaml:"context"` // Extra context for generating documentation
-		Menu    *Menu                  `yaml:"menu"`    // Menu items
+		Server   ServerConfig           `yaml:"server"`   // Server configuration
+		Project  ProjectConfig          `yaml:"project"`  // Project configuration
+		Context  map[string]interface{} `yaml:"context"`  // Extra context for generating documentation
+		Features []string               `yaml:"features"` // Features to enable
+		Menu     *Menu                  `yaml:"menu"`     // Menu items
 
 		Instance      *Doccer                       `yaml:"-"` // Doccer instance
 		Tpl           *template.Template            `yaml:"-"` // HTML Template

@@ -10,25 +10,29 @@ import (
 )
 
 type (
+	Feature interface {
+		ID() string
+		Init(*Doccer, *Config) error
+	}
 	Renderer interface {
 		Render(*Context) string
 	}
-	DoccerHook           func(*Doccer) error
-	LoadHook             func(*Doccer, *Config) error
-	RegisterTemplateHook func(*Doccer) string
-	ConstructMenuHook    func(*Doccer, *Menu)
-	RendererHook         func(*Context) Renderer
-	ParseFlagFn          func(*Doccer, *flag.FlagSet) error
-	ParseArgHook         func(d *Doccer, fs *flag.FlagSet) ParseFlagFn
+	FeatureHook       func(*Doccer, *Config) Feature
+	DoccerHook        func(*Doccer) error
+	LoadHook          func(*Doccer, *Config) error
+	ConstructMenuHook func(*Doccer, *Menu)
+	RendererHook      func(*Context) Renderer
+	ParseFlagFn       func(*Doccer, *flag.FlagSet) error
+	ParseArgHook      func(d *Doccer, fs *flag.FlagSet) ParseFlagFn
 )
 
-type TemplatePaths []string // TemplatePath represents a path to a template
+type templatePaths []string // TemplatePath represents a path to a template
 
-func TemplatePath(paths ...string) TemplatePaths {
+func TemplatePath(paths ...string) templatePaths {
 	return paths
 }
 
-func (t TemplatePaths) Render(c *Context) string {
+func (t templatePaths) Render(c *Context) string {
 	var tpl = template.New("feature_template")
 	tpl.Funcs(c.Config.Instance.TemplateFuncs())
 	tpl, err := tpl.ParseFS(c.Config.Instance.embedFS, t...)
@@ -41,6 +45,32 @@ func (t TemplatePaths) Render(c *Context) string {
 		return err.Error()
 	}
 	return buf.String()
+}
+
+type Hook struct {
+	HookName string
+	Priority int
+	Handlers []any
+}
+
+type HookFeature struct {
+	Identifier string
+	Hooks      []Hook
+}
+
+func (h *HookFeature) ID() string {
+	return h.Identifier
+}
+
+func (h *HookFeature) Init(d *Doccer, c *Config) error {
+	for _, hook := range h.Hooks {
+		hooks.Register(
+			hook.HookName,
+			hook.Priority,
+			hook.Handlers...,
+		)
+	}
+	return nil
 }
 
 func init() {
@@ -67,11 +97,27 @@ func init() {
 	)
 
 	hooks.Register(
-		"render_navbar_content", -10,
-		func(c *Context) Renderer {
-			return TemplatePath(
-				"templates/hooks/navbar_search.tmpl",
-			)
+		"register_features", 0,
+		func(d *Doccer, c *Config) Feature {
+			return &HookFeature{
+				Identifier: "search",
+				Hooks: []Hook{
+					{HookName: "render_navbar_content", Priority: -10, Handlers: []any{
+						func(c *Context) Renderer {
+							return TemplatePath(
+								"templates/hooks/navbar_search.tmpl",
+							)
+						},
+					}},
+					//	{HookName: "after_build", Priority: -10, Handlers: []any{
+					//		func(d *Doccer, c *Config) error {
+					//
+					//			return nil
+					//		},
+					//	}},
+				},
+			}
 		},
 	)
+
 }

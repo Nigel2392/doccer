@@ -11,6 +11,9 @@ server:
   hostname: "localhost"
   port: 8080
 
+features:
+  # - "search"
+
 menu:
   items:
     - name: "Getting Started"

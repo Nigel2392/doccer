@@ -26,6 +26,28 @@ type TemplateDirectory struct {
 	Templates *orderedmap.Map[string, *Template] `json:"-"`
 }
 
+func NewDirectory(dir *TemplateDirectory, name string) (*TemplateDirectory, error) {
+	var d = &TemplateDirectory{
+		FSBase: FSBase{
+			Name: name,
+			Output: filepath.Join(
+				dir.Output, name,
+			),
+			Relative: filepath.Join(
+				dir.Relative, name,
+			),
+			Root:          dir.Root,
+			Depth:         dir.Depth + 1,
+			RootDirectory: dir.RootDirectory,
+			Path:          filepath.Join(dir.Path, name),
+		},
+		Subdirectories: orderedmap.New[string, *TemplateDirectory](),
+		Templates:      orderedmap.New[string, *Template](),
+	}
+
+	return d, nil
+}
+
 // NewTemplateDirectory creates a new template directory
 func NewTemplateDirectory(rootDir *TemplateDirectory, name, root, path, output, relative string, depth int) (*TemplateDirectory, error) {
 
@@ -168,6 +190,7 @@ func (d *TemplateDirectory) ForEach(f func(Object) bool) bool {
 
 	return true
 }
+
 func (d *TemplateDirectory) Traverse(fn func(*TemplateDirectory) (o Object, next bool, mayReturn bool)) (Object, bool) {
 	var o, next, mayReturn = fn(d)
 	if !next || mayReturn {
@@ -222,6 +245,39 @@ func (d *TemplateDirectory) Walk(parts []string) (Object, bool) {
 	}
 
 	return nil, false
+}
+
+// AddDirectory adds a directory to the directory
+func (d *TemplateDirectory) AddDirectory(name string) (*TemplateDirectory, error) {
+
+	if d.Subdirectories.Exists(name) || d.Templates.Exists(name) {
+		return nil, ErrFileExists
+	}
+
+	var dir, err = NewDirectory(d, name)
+	if err != nil {
+		return nil, err
+	}
+
+	d.Subdirectories.Set(dir.Name, dir)
+
+	return dir, nil
+}
+
+// AddFile adds a file to the directory
+func (d *TemplateDirectory) AddFile(name string, content []byte) (*Template, error) {
+	if d.Subdirectories.Exists(name) || d.Templates.Exists(name) {
+		return nil, ErrFileExists
+	}
+
+	var template, err = NewDirectoryChild(d, name, content)
+	if err != nil {
+		return nil, err
+	}
+
+	d.Templates.Set(template.Name, template)
+
+	return template, nil
 }
 
 func (d *TemplateDirectory) URL() string {

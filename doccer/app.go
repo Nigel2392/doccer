@@ -44,18 +44,15 @@ func raise(message string) {
 	)
 }
 
-// Walker represents an object which can traverse through a path.
-// It is used to find a specific object in the documentation tree.
-type Walker interface {
-	Walk(parts []string) (object filesystem.Object, ok bool)
-}
-
 type Doccer struct {
 	// Config file path
 	configPath string
 
 	// Config
 	config *Config
+
+	// Registered features
+	features map[string]Feature
 
 	embedFS *DoccerFS
 }
@@ -64,11 +61,17 @@ type Doccer struct {
 func NewDoccer(embedFS fs.FS, configPath string) (*Doccer, error) {
 	var doccer = &Doccer{
 		configPath: configPath,
+		features:   make(map[string]Feature),
 		embedFS:    &DoccerFS{embedFS},
 	}
 	doccer.config = NewConfig(doccer)
 
 	return doccer, nil
+}
+
+// FS returns the filesystem
+func (d *Doccer) FS() *DoccerFS {
+	return d.embedFS
 }
 
 // ParseArgs parses the arguments for the command
@@ -80,8 +83,9 @@ func (d *Doccer) ParseArgs(args []string) (err error) {
 	var (
 		fs  = flag.NewFlagSet("doccer", flag.ExitOnError)
 		h   = hooks.Get[ParseArgHook]("parse_args")
-		fns = make([]ParseFlagFn, 0)
+		fns = make([]ParseFlagFn, 0, len(h))
 	)
+
 	for _, hook := range h {
 		if fn := hook(d, fs); fn != nil {
 			fns = append(fns, fn)
@@ -117,7 +121,32 @@ func (d *Doccer) Load() error {
 		return err
 	}
 
-	return d.config.Init()
+	err = d.config.Init()
+	if err != nil {
+		return err
+	}
+
+	var h = hooks.Get[FeatureHook]("register_features")
+	for _, hook := range h {
+		var feature = hook(d, d.config)
+		if feature != nil {
+			d.features[feature.ID()] = feature
+		}
+	}
+
+	for _, feature := range d.config.Features {
+		var f, ok = d.features[feature]
+		if !ok {
+			return fmt.Errorf("feature not found: %s", feature)
+		}
+
+		err = f.Init(d, d.config)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // GetMenu returns the menu for the documentation
@@ -434,9 +463,9 @@ func (d *Doccer) Build() error {
 	}
 
 	// Run all build hooks
-	h = hooks.Get[DoccerHook]("after_build")
-	for _, hook := range h {
-		err = hook(d)
+	var ldHooks = hooks.Get[LoadHook]("after_build")
+	for _, hook := range ldHooks {
+		err = hook(d, d.config)
 		if err != nil {
 			return err
 		}
@@ -470,17 +499,15 @@ func (d *Doccer) Init() error {
 	}
 
 	if createConfig {
-		var c = NewConfig(d)
-
 		var h = hooks.Get[LoadHook]("init_new_config")
 		for _, hook := range h {
-			err = hook(d, c)
+			err = hook(d, d.config)
 			if err != nil {
 				return err
 			}
 		}
 
-		var b, err = yaml.Marshal(c)
+		var b, err = yaml.Marshal(d.config)
 		if err != nil {
 			return err
 		}
@@ -600,6 +627,14 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 	var _, isServing = w.(http.ResponseWriter)
 	var context = d.GetContext(isServing)
 
+	var h = hooks.Get[func(*Doccer, *Context, filesystem.Object) error]("pre_render_object")
+	for _, hook := range h {
+		var err = hook(d, context, obj)
+		if err != nil {
+			return err
+		}
+	}
+
 	if t, ok := obj.(*filesystem.Template); ok && !t.IsTextFile() {
 		return t.Render(w, d.TemplateFuncs(), context)
 	}
@@ -664,13 +699,6 @@ func (d *Doccer) renderObject(w io.Writer, obj filesystem.Object) error {
 		)
 	}
 
-	var h = hooks.Get[func(*Doccer, *Context, filesystem.Object) error]("pre_render_object")
-	for _, hook := range h {
-		var err = hook(d, context, obj)
-		if err != nil {
-			return err
-		}
-	}
 	var err = d.config.Tpl.ExecuteTemplate(w, "base", context)
 	if err != nil {
 		return err

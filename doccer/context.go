@@ -169,6 +169,9 @@ func (c *Context) Object() filesystem.Object {
 func (c *Context) FlatObjectList() []filesystem.Object {
 	var list []filesystem.Object
 	var fn = func(obj filesystem.Object) bool {
+		if o, ok := obj.(*filesystem.Template); ok && !o.IsTextFile() {
+			return true
+		}
 		list = append(list, makeContextObject(obj, c))
 		return true
 	}

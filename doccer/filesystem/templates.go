@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	text_template "text/template"
 
@@ -22,9 +23,10 @@ type Template struct {
 	Config `json:",inline"`
 
 	// Template content
-	Content    string `json:"content"`
-	isTextFile bool
-	loaded     bool
+	Content       string `json:"content"`
+	isTextFile    bool
+	canBeTemplate bool
+	loaded        bool
 }
 
 // Format the template for %v
@@ -40,6 +42,31 @@ func (d *Template) IsDirectory() bool {
 // IsTextFile returns true if the file is a text file
 func (t *Template) IsTextFile() bool {
 	return t.isTextFile
+}
+
+// NewSimpleTemplate creates a new template from just a name, path, output and directory.
+func NewDirectoryChild(dir *TemplateDirectory, name string, content []byte) (*Template, error) {
+	var (
+		relative = path.Join(dir.Relative, name)
+		template = &Template{
+			FSBase: FSBase{
+				Name:          name,
+				Path:          path.Join(dir.Path, name),
+				Output:        filepath.Join(dir.Output, name),
+				Root:          dir.Root,
+				Relative:      relative,
+				Depth:         dir.Depth + 1,
+				RootDirectory: dir,
+			},
+		}
+		config = NewConfig(
+			&template.FSBase,
+		)
+	)
+
+	template.Config = config
+
+	return template, template.loadContent(content)
 }
 
 // NewTemplate creates a new template
@@ -60,7 +87,13 @@ func NewTemplate(rootDir *TemplateDirectory, name, root, filepath, output, relat
 		&template.FSBase,
 	)
 
-	return template, template.loadContent()
+	// Load the template content
+	var content, err = os.ReadFile(template.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	return template, template.loadContent(content)
 }
 
 func (t *Template) URL() string {
@@ -82,15 +115,10 @@ func (t *Template) ServeURL() string {
 }
 
 // loadContent loads the template content from disk
-func (t *Template) loadContent() error {
-	// Load the template content
-	var content, err = os.ReadFile(t.Path)
-	if err != nil {
-		return err
-	}
-
+func (t *Template) loadContent(content []byte) error {
 	// Check if the file is a text file
-	t.isTextFile = isTextFile(content)
+	t.isTextFile = isTextFile(t.Name, content)
+	t.canBeTemplate = isValidUTF8(content)
 
 	// Setup the output file.
 	// This can only be done now - we need to know if the file is a text file
@@ -165,7 +193,7 @@ func (t *Template) loadContent() error {
 func (t *Template) Render(w io.Writer, funcs template.FuncMap, context interface{}) error {
 	var renderfn = render.For(t.GetName())
 
-	if !t.loaded && t.isTextFile {
+	if !t.loaded && t.canBeTemplate {
 		var tpl = text_template.New("content")
 
 		tpl = tpl.Funcs(funcs)
