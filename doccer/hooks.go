@@ -2,6 +2,7 @@ package doccer
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"html/template"
 
@@ -17,6 +18,8 @@ type (
 	RegisterTemplateHook func(*Doccer) string
 	ConstructMenuHook    func(*Doccer, *Menu)
 	RendererHook         func(*Context) Renderer
+	ParseFlagFn          func(*Doccer, *flag.FlagSet) error
+	ParseArgHook         func(d *Doccer, fs *flag.FlagSet) ParseFlagFn
 )
 
 type TemplatePath string // TemplatePath represents a path to a template

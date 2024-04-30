@@ -5,31 +5,38 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/Nigel2392/doccer/doccer"
 )
 
+var LOAD_REQUIRED_COMMANDS = []string{
+	"build",
+	"serve",
+}
+
 func matchCommand(d *doccer.Doccer, command string, args []string) (err error) {
 
+	if slices.Contains(LOAD_REQUIRED_COMMANDS, command) {
+		if err = d.Load(); err != nil {
+			return err
+		}
+	}
+
 	// Parse the arguments for the command
+	d.ParseArgs(args)
 
 	// Execute the command
 	switch strings.ToLower(command) {
 	case "build":
-		if err = d.Load(); err != nil {
-			return err
-		}
 		return d.Build()
 	case "serve":
-		if err = d.Load(); err != nil {
-			return err
-		}
 		return d.Serve()
 	case "init":
 		return d.Init()
 	default:
-		return errors.New("command not found")
+		return errors.New("command not found, try 'build -h', 'serve -h' or 'init -h'")
 	}
 }
 

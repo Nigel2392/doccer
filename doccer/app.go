@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"html/template"
 	"io"
@@ -68,6 +69,38 @@ func NewDoccer(embedFS fs.FS, configPath string) (*Doccer, error) {
 	doccer.config = NewConfig(doccer)
 
 	return doccer, nil
+}
+
+// ParseArgs parses the arguments for the command
+func (d *Doccer) ParseArgs(args []string) (err error) {
+	if len(args) == 0 {
+		return
+	}
+
+	var (
+		fs  = flag.NewFlagSet("doccer", flag.ExitOnError)
+		h   = hooks.Get[ParseArgHook]("parse_args")
+		fns = make([]ParseFlagFn, 0)
+	)
+	for _, hook := range h {
+		if fn := hook(d, fs); fn != nil {
+			fns = append(fns, fn)
+		}
+	}
+
+	err = fs.Parse(args)
+	if err != nil {
+		return
+	}
+
+	for _, fn := range fns {
+		err = fn(d, fs)
+		if err != nil {
+			return
+		}
+	}
+
+	return nil
 }
 
 // Load the configuration
